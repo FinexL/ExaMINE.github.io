@@ -15,11 +15,14 @@ function Navi() {
           <Nav.Link as={Link} to="/dashboard">
             Dashboard
           </Nav.Link>
-          <Nav.Link as={Link} to="/features">
-            Features
+          <Nav.Link as={Link} to="/input-grades">
+            Input Grades
           </Nav.Link>
-          <Nav.Link as={Link} to="/pricing">
-            Pricing
+          <Nav.Link as={Link} to="/view-grades">
+            View Grades
+          </Nav.Link>
+          <Nav.Link as={Link} to="/management">
+            Management
           </Nav.Link>
         </Nav>
       </Container>

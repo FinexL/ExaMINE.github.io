@@ -4,6 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import CustomTable from "./CustomTable";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -51,6 +52,7 @@ export default function VerticalTabs() {
         flexGrow: 1,
         bgcolor: "background.paper",
         display: "flex",
+        flex: "1",
       }}
     >
       <Tabs
@@ -59,13 +61,25 @@ export default function VerticalTabs() {
         value={value}
         onChange={handleChange}
         aria-label="Vertical tabs example"
-        sx={{ borderRight: 1, borderColor: "divider" }}
+        sx={{ borderRight: 5, borderColor: "divider" }}
       >
         <Tab label="Student Data" {...a11yProps(0)} />
         <Tab label="University Data" {...a11yProps(1)} />
         <Tab label="Subject Data" {...a11yProps(2)} />
         <Tab label="User Data" {...a11yProps(3)} />
       </Tabs>
+      <TabPanel value={value} index={0}>
+        <CustomTable />
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        Item Two
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+        Item Three
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        Item Four
+      </TabPanel>
     </Box>
   );
 }

@@ -1,9 +1,14 @@
+import NavTabs from "../components/NavTabs";
+import ContentBox from "../components/ContentBox";
+import { Typography } from "@mui/material";
 function InputGrades() {
   return (
     <>
-      <div>
-        <h1>Input Grades</h1>
-      </div>
+      <Typography variant="h1">Input Grades</Typography>
+
+      <ContentBox>
+        <NavTabs />
+      </ContentBox>
     </>
   );
 }

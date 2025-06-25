@@ -6,9 +6,12 @@ const ContentBox = ({ innerStyle = {}, children }) => {
       sx={{
         backgroundColor: "#d3d3d3",
         padding: 2,
+        margin: 2,
         borderRadius: 1,
-        minHeight: "95vh",
-        flex: 1,
+        borderStyle: "solid",
+        borderWidth: 8,
+        minHeight: "flex",
+
         ...innerStyle,
       }}
     >

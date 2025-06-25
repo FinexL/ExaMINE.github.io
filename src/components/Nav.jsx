@@ -12,11 +12,21 @@ import {
   Tooltip,
   MenuItem,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import AdbIcon from "@mui/icons-material/Adb";
 
-const pages = ["Dashboard", "Input Grades", "View Grades", "Management"];
-const settings = ["Profile", "Setting", "Logout"];
+const pages = [
+  { name: "Dashboard", path: "/dashboard" },
+  { name: "Input Grades", path: "/input-grades" },
+  { name: "View Grades", path: "/view-grades" },
+  { name: "Management", path: "/management" },
+];
+const settings = [
+  { name: "Profile", path: "/" },
+  { name: "Setting", path: "/" },
+  { name: "Logout", path: "/" },
+];
 
 function Nav() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -87,8 +97,13 @@ function Nav() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: "center" }}>{page}</Typography>
+                <MenuItem
+                  key={page.name}
+                  component={Link}
+                  to={page.path}
+                  onClick={handleCloseNavMenu}
+                >
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -98,14 +113,18 @@ function Nav() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.name}
+                component={Link}
+                to={page.path}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                {page.name}
               </Button>
             ))}
           </Box>
+
+          {/*para sa setting*/}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -129,9 +148,14 @@ function Nav() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem
+                  key={setting.name}
+                  component={Link}
+                  to={setting.path}
+                  onClick={handleCloseUserMenu}
+                >
                   <Typography sx={{ textAlign: "center" }}>
-                    {setting}
+                    {setting.name}
                   </Typography>
                 </MenuItem>
               ))}

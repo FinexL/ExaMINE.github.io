@@ -189,7 +189,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function EnhancedTable() {
+export default function CustomTable() {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
@@ -262,7 +262,7 @@ export default function EnhancedTable() {
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
-            sx={{ minWidth: 750 }}
+            sx={{ mixWidth: "flex", width: "80vw" }}
             aria-labelledby="tableTitle"
             size={dense ? "small" : "medium"}
           >

@@ -7,9 +7,7 @@ function Dashboard() {
     <>
       <Typography variant="h1">Dashboard</Typography>
 
-      <ContentBox>
-        <NavTabs />
-      </ContentBox>
+      <ContentBox></ContentBox>
     </>
   );
 }

@@ -8,8 +8,7 @@ const ContentBox = ({ innerStyle = {}, children }) => {
         padding: 2,
         margin: 2,
         borderRadius: 1,
-        borderStyle: "solid",
-        borderWidth: 8,
+        boxShadow: 5,
         minHeight: "flex",
 
         ...innerStyle,

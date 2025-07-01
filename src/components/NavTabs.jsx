@@ -1,10 +1,9 @@
 import * as React from "react";
+import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import CustomTable from "./CustomTable";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -19,7 +18,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <div>{children}</div>
         </Box>
       )}
     </div>
@@ -40,12 +39,39 @@ function a11yProps(index) {
 }
 
 export default function VerticalTabs() {
-  const [value, setValue] = React.useState(0);
+  const location = useLocation();
+  const path = location.pathname;
 
+  const [value, setValue] = React.useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  let tabs = [];
 
+  switch (path) {
+    case "/input-grades":
+      tabs = [
+        <Tab label="Manual Input" {...a11yProps(0)} key={0} />,
+        <Tab label="Import Grades" {...a11yProps(1)} key={1} />,
+      ];
+      break;
+    case "/view-grades":
+      tabs = [
+        <Tab label="View Grades" {...a11yProps(0)} key={0} />,
+        <Tab label="Export Grades" {...a11yProps(1)} key={1} />,
+      ];
+      break;
+    case "/management":
+      tabs = [
+        <Tab label="Student Data" {...a11yProps(0)} key={0} />,
+        <Tab label="University Data" {...a11yProps(1)} key={1} />,
+        <Tab label="Subject Data" {...a11yProps(2)} key={2} />,
+        <Tab label="User Data" {...a11yProps(3)} key={3} />,
+      ];
+      break;
+    default:
+      break;
+  }
   return (
     <Box
       sx={{
@@ -61,25 +87,15 @@ export default function VerticalTabs() {
         value={value}
         onChange={handleChange}
         aria-label="Vertical tabs example"
-        sx={{ borderRight: 5, borderColor: "divider" }}
+        sx={{ width: "flex", borderRight: 5, borderColor: "divider" }}
       >
-        <Tab label="Student Data" {...a11yProps(0)} />
-        <Tab label="University Data" {...a11yProps(1)} />
-        <Tab label="Subject Data" {...a11yProps(2)} />
-        <Tab label="User Data" {...a11yProps(3)} />
+        {tabs}
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <CustomTable />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        Item Two
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Item Three
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Item Four
-      </TabPanel>
+      {tabs.map((_, index) => (
+        <TabPanel value={value} index={index} key={index}>
+          {`Content for tab ${index + 1}`}
+        </TabPanel>
+      ))}
     </Box>
   );
 }

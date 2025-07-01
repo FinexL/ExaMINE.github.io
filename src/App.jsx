@@ -4,7 +4,7 @@ import Management from "./pages/Management";
 import Dashboard from "./pages/Dashboard";
 import InputGrades from "./pages/InputGrades";
 import ViewGrades from "./pages/ViewGrades";
-import { BrowserRouter as Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (

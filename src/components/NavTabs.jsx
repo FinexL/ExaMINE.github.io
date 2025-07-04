@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import ManagementTable from "./Tables/ManagementTable";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -47,13 +48,14 @@ export default function VerticalTabs() {
     setValue(newValue);
   };
   let tabs = [];
-
+  let content = [];
   switch (path) {
     case "/input-grades":
       tabs = [
         <Tab label="Manual Input" {...a11yProps(0)} key={0} />,
         <Tab label="Import Grades" {...a11yProps(1)} key={1} />,
       ];
+
       break;
     case "/view-grades":
       tabs = [
@@ -67,6 +69,12 @@ export default function VerticalTabs() {
         <Tab label="University Data" {...a11yProps(1)} key={1} />,
         <Tab label="Subject Data" {...a11yProps(2)} key={2} />,
         <Tab label="User Data" {...a11yProps(3)} key={3} />,
+      ];
+      content = [
+        <ManagementTable type={"student"} key="student" />,
+        <ManagementTable type={"university"} key="university" />,
+        <ManagementTable type={"subject"} key="subject" />,
+        <ManagementTable type={"user"} key="user" />,
       ];
       break;
     default:
@@ -91,11 +99,17 @@ export default function VerticalTabs() {
       >
         {tabs}
       </Tabs>
-      {tabs.map((_, index) => (
-        <TabPanel value={value} index={index} key={index}>
-          {`Content for tab ${index + 1}`}
-        </TabPanel>
-      ))}
+      {content.length > 0
+        ? content.map((component, index) => (
+            <TabPanel value={value} index={index} key={index}>
+              {component}
+            </TabPanel>
+          ))
+        : tabs.map((_, index) => (
+            <TabPanel value={value} index={index} key={index}>
+              {` ${index + 1}`}
+            </TabPanel>
+          ))}
     </Box>
   );
 }

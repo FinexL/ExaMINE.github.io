@@ -9,7 +9,7 @@ const ContentBox = ({ innerStyle = {}, children }) => {
         margin: 2,
         borderRadius: 1,
         boxShadow: 5,
-        minHeight: "flex",
+        minHeight: "200px",
 
         ...innerStyle,
       }}

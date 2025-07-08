@@ -4,9 +4,10 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import ManagementTable from "./tables/ManagementTable";
+import ManagementTable from "tables/ManagementTable";
+mv;
 
-function TabPanel(props) {
+function TabPanel(npprops) {
   const { children, value, index, ...other } = props;
 
   return (

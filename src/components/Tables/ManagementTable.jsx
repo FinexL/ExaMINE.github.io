@@ -69,32 +69,36 @@ const updatedUniversities = universities.map((uni) => {
 });
 
 const studentColumns = [
-  { field: "stuID", headerName: "ID", width: 80 },
-  { field: "name", headerName: "Student Name", width: 180 },
-  { field: "university", headerName: "University", width: 180 },
+  { field: "stuID", headerName: "ID", flex: 1, minWidth: 80 },
+  { field: "name", headerName: "Student Name", flex: 2, minWidth: 150 },
+  { field: "university", headerName: "University", flex: 2, minWidth: 150 },
 ];
-
 const universityColumns = [
-  { field: "uniID", headerName: "ID", width: 80 },
-  { field: "name", headerName: "University", width: 180 },
-  { field: "numberOfStudents", headerName: "# of Students", width: 130 },
-  { field: "dean", headerName: "Dean", width: 150 },
-  { field: "deanEmail", headerName: "Email", width: 200 },
+  { field: "uniID", headerName: "ID", flex: 1, minWidth: 80 },
+  { field: "name", headerName: "University", flex: 2, minWidth: 150 },
+  {
+    field: "numberOfStudents",
+    headerName: "# of Students",
+    flex: 1,
+    minWidth: 100,
+  },
+  { field: "dean", headerName: "Dean", flex: 2, minWidth: 120 },
+  { field: "deanEmail", headerName: "Email", flex: 3, minWidth: 180 },
 ];
 
 const topicColumns = [
-  { field: "topicID", headerName: "ID", width: 80 },
-  { field: "topicName", headerName: "Topic", width: 200 },
-  { field: "subjectName", headerName: "Subject", width: 200 },
+  { field: "topicID", headerName: "ID", flex: 1, minWidth: 80 },
+  { field: "topicName", headerName: "Topic", flex: 2, minWidth: 150 },
+  { field: "subjectName", headerName: "Subject", flex: 2, minWidth: 150 },
 ];
 
 const userColumns = [
-  { field: "userID", headerName: "User ID", width: 100 },
-  { field: "username", headerName: "Username", width: 150 },
-  { field: "email", headerName: "Email", width: 200 },
-  { field: "status", headerName: "Status", width: 120 },
-  { field: "role", headerName: "Role", width: 120 },
-  { field: "createdDate", headerName: "Created Date", width: 150 },
+  { field: "userID", headerName: "User ID", flex: 1, minWidth: 100 },
+  { field: "username", headerName: "Username", flex: 2, minWidth: 120 },
+  { field: "email", headerName: "Email", flex: 3, minWidth: 180 },
+  { field: "status", headerName: "Status", flex: 1, minWidth: 100 },
+  { field: "role", headerName: "Role", flex: 1, minWidth: 100 },
+  { field: "createdDate", headerName: "Created Date", flex: 2, minWidth: 140 },
 ];
 
 export default function ManagementTable({ type }) {
@@ -145,6 +149,8 @@ export default function ManagementTable({ type }) {
         columns={tableProps.columns}
         getRowId={tableProps.getRowId}
         pageSize={5}
+        rowsPerPageOptions={[5, 10, 20]}
+        disableColumnMenu
       />
     </Box>
   );

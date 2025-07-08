@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 
-const ContentBox = ({ innerStyle = {}, children }) => {
+const ContentBox = ({ children }) => {
   return (
     <Box
       sx={{
@@ -9,9 +9,9 @@ const ContentBox = ({ innerStyle = {}, children }) => {
         margin: 2,
         borderRadius: 1,
         boxShadow: 5,
-        minHeight: "200px",
-
-        ...innerStyle,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {children}

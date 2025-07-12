@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-
+//na adjust na rin
 const ContentBox = ({ children }) => {
   return (
     <Box
@@ -12,9 +12,17 @@ const ContentBox = ({ children }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        overflow: "auto",
       }}
     >
-      {children}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: "auto",
+        }}
+      >
+        {children}
+      </Box>
     </Box>
   );
 };

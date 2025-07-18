@@ -25,11 +25,6 @@ const pages = [
   { name: "View Grades", path: "/view-grades" },
   { name: "Management", path: "/management" },
 ];
-const settings = [
-  { name: "Profile", path: "/" },
-  { name: "Setting", path: "/" },
-  { name: "Logout", path: "/" },
-];
 
 function Nav() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -131,12 +126,12 @@ function Nav() {
             </Tooltip>
 
             <Tooltip title="Settings">
-              <IconButton title="Settings" sx={{ color: "white" }}>
+              <IconButton sx={{ color: "white" }}>
                 <SettingsIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Logout">
-              <IconButton title="Logout" sx={{ color: "white" }}>
+              <IconButton sx={{ color: "white" }}>
                 <LogoutIcon />
               </IconButton>
             </Tooltip>

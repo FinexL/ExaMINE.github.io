@@ -19,10 +19,10 @@ const db = mysql.createConnection({
   database: "examine_db"
 });
 
-//retrieve student
+//view
 app.get("/api/students", (req, res) => {
   const query = `
-    SELECT
+    SELECT 
       s.student_id,
       s.first_name,
       s.middle_name,
@@ -34,7 +34,6 @@ app.get("/api/students", (req, res) => {
     FROM students s
     LEFT JOIN universities u ON s.university_id = u.university_id
   `;
-
   db.query(query, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
@@ -42,9 +41,91 @@ app.get("/api/students", (req, res) => {
 });
 
 
+// ADD a student
+app.post("/api/students", (req, res) => {
+  console.log("Incoming student data:", req.body);
+  const {
+    first_name,
+    middle_name,
+    last_name,
+    suffix,
+    university_id,
+    add_date
+  } = req.body;
+
+  const query = `
+    INSERT INTO students 
+    (first_name, middle_name, last_name, suffix, university_id, add_date) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  db.query(
+    query,
+    [first_name, middle_name, last_name, suffix, university_id, add_date],
+    (err, result) => {
+      if (err) {
+        console.error("INSERT error:", err); // 👈 More helpful error
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(201).json({ message: "Student added", student_id: result.insertId });
+    }
+  );
+});
+
+// UPDATE a student
+app.put("/api/students/:id", (req, res) => {
+  const student_id = req.params.id;
+  const {
+    first_name,
+    middle_name,
+    last_name,
+    suffix,
+    university_id,
+    add_date
+  } = req.body;
+
+  const query = `
+    UPDATE students SET
+      first_name = ?, 
+      middle_name = ?, 
+      last_name = ?, 
+      suffix = ?, 
+      university_id = ?, 
+      add_date = ?
+    WHERE student_id = ?
+  `;
+
+  db.query(query, [first_name, middle_name, last_name, suffix, university_id, add_date, student_id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Student updated" });
+  });
+});
+
+// DELETE a student
+app.delete("/api/students/:id", (req, res) => {
+  const student_id = req.params.id;
+
+  const query = "DELETE FROM students WHERE student_id = ?";
+  db.query(query, [student_id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Student deleted" });
+  });
+});
+
+
 // retrieve univeristy
 app.get('/api/universities', (req, res) => {
-  db.query('SELECT * FROM universities', (err, results) => {
+  const query = `
+    SELECT 
+      u.university_id,
+      u.university_name,
+      COUNT(s.student_id) AS number_of_students,
+      u.dean_name,
+      u.dean_email
+    FROM universities u
+    LEFT JOIN students s ON u.university_id = s.university_id
+    GROUP BY u.university_id, u.university_name, u.dean_name, u.dean_email
+  `;
+  db.query(query, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });

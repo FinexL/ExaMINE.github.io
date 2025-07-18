@@ -63,15 +63,15 @@ export default function TopicTable() {
     {
       field: "topic_name",
       headerName: "Topic Name",
-      flex: 1,
-      minWidth: 400,
+      flex: 2,
+      minWidth: 350,
       editable: true,
     },
     {
       field: "subject_name",
       headerName: "Subject Name",
       flex: 2,
-      minWidth: 400,
+      minWidth: 350,
       editable: true,
     },
 
@@ -134,6 +134,7 @@ export default function TopicTable() {
           loading={loading}
           rowModesModel={rowModesModel}
           onRowModesModelChange={setRowModesModel}
+          density="compact"
           editMode="row"
           processRowUpdate={processRowUpdate}
           onRowEditStop={handleRowEditStop}

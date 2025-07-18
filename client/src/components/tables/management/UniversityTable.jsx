@@ -154,6 +154,7 @@ export default function UniversityTable() {
           loading={loading}
           rowModesModel={rowModesModel}
           onRowModesModelChange={setRowModesModel}
+          density="compact"
           editMode="row"
           processRowUpdate={processRowUpdate}
           onRowEditStop={handleRowEditStop}

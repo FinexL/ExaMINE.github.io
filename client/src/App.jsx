@@ -4,17 +4,30 @@ import Management from "./pages/Management";
 import Dashboard from "./pages/Dashboard";
 import InputGrades from "./pages/InputGrades";
 import ViewGrades from "./pages/ViewGrades";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import Login from "./pages/Login";
+import PageNotFound from "./pages/PageNotFound";
 
 function App() {
+  const location = useLocation();
+  const path = location.pathname;
+  const showNavOn = [
+    "/dashboard",
+    "/input-grades",
+    "/view-grades",
+    "/management",
+  ];
+  const showNav = showNavOn.includes(location.pathname);
   return (
     <>
-      <Nav />
+      {showNav && <Nav />}
       <Routes>
+        <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/input-grades" element={<InputGrades />} />
         <Route path="/view-grades" element={<ViewGrades />} />
         <Route path="/management" element={<Management />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );

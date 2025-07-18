@@ -4,7 +4,7 @@ const ContentBox = ({ children }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "#d3d3d3",
+        backgroundColor: "rgba(76, 168, 228, 0.34)",
         padding: 2,
         margin: 2,
         borderRadius: 1,

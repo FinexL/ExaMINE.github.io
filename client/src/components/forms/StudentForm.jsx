@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  MenuItem,
 } from "@mui/material";
 import axios from "axios";
 
@@ -16,8 +17,22 @@ export default function StudentForm({ open, onClose, onSuccess }) {
     middle_name: "",
     last_name: "",
     suffix: "",
-    university_name: "",
+    university_id: "",
   });
+
+  const [universities, setUniversities] = useState([]);
+
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const res = await axios.get("http://localhost:5202/api/universities");
+        setUniversities(res.data);
+      } catch (err) {
+        console.error("Failed to load universities:", err);
+      }
+    };
+    fetchUniversities();
+  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -33,8 +48,15 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         ...formData,
         add_date: new Date().toISOString().split("T")[0],
       });
-      onSuccess(); // Refresh table
-      onClose(); // Close dialog
+      onSuccess();
+      onClose();
+      setFormData({
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        suffix: "",
+        university_id: "",
+      });
     } catch (err) {
       console.error("Student creation failed:", err);
     }
@@ -80,13 +102,21 @@ export default function StudentForm({ open, onClose, onSuccess }) {
             onChange={handleChange}
           />
           <TextField
+            select
             fullWidth
-            name="university_name"
-            label="University Name"
+            required
+            name="university_id"
+            label="University"
             margin="normal"
-            value={formData.university_name}
+            value={formData.university_id}
             onChange={handleChange}
-          />
+          >
+            {universities.map((uni) => (
+              <MenuItem key={uni.university_id} value={uni.university_id}>
+                {uni.university_name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
       </DialogContent>
       <DialogActions>

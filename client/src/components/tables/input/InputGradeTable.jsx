@@ -5,7 +5,6 @@ import {
   GridRowModes,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
@@ -15,7 +14,7 @@ import { useState } from "react";
 import useStudents from "../../../hooks/useStudents";
 import StudentForm from "../../forms/StudentForm";
 
-export default function StudentTable() {
+export default function InputGradeTable() {
   const {
     rows,
     loading,

@@ -7,9 +7,7 @@ function ViewGrades() {
     <>
       <Typography variant="h1">View Grades</Typography>
 
-      <ContentBox>
-        <NavTabs />
-      </ContentBox>
+      <ContentBox></ContentBox>
     </>
   );
 }

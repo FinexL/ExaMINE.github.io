@@ -6,9 +6,7 @@ function InputGrades() {
     <>
       <Typography variant="h1">Input Grades</Typography>
 
-      <ContentBox>
-        <NavTabs />
-      </ContentBox>
+      <ContentBox></ContentBox>
     </>
   );
 }

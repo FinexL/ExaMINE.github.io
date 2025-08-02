@@ -21,19 +21,28 @@ const useTopics = () => {
   };
 
   const saveTopic = async (topic) => {
-    try {
-      if (topic.isNew) {
-        const res = await axios.post("http://localhost:5202/api/topics", topic);
-        return res.data;
-      } else {
-        await axios.put(`http://localhost:5202/api/topics/${topic.topic_id}`, topic);
-        return topic;
-      }
-    } catch (err) {
-      console.error("Failed to save topic:", err);
-      throw err;
+  try {
+    const payload = {
+      topic_name: topic.topic_name,
+      subject_id: topic.subject_id,
+    };
+
+    if (topic.isNew) {
+      const res = await axios.post("http://localhost:5202/api/topics", payload);
+      return res.data;
+    } else {
+      await axios.put(`http://localhost:5202/api/topics/${topic.topic_id}`, payload);
+      return {
+        ...topic,
+      
+      };
     }
-  };
+  } catch (err) {
+    console.error("Failed to save topic:", err);
+    throw err;
+  }
+};
+
 
   const deleteTopic = async (id) => {
     try {

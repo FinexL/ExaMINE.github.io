@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -58,6 +58,7 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         university_id: "",
       });
     } catch (err) {
+      setSnackbarMessage("Failed to save student.");
       console.error("Student creation failed:", err);
     }
   };
@@ -94,13 +95,22 @@ export default function StudentForm({ open, onClose, onSuccess }) {
             onChange={handleChange}
           />
           <TextField
+            select
             fullWidth
             name="suffix"
             label="Suffix"
             margin="normal"
             value={formData.suffix}
             onChange={handleChange}
-          />
+          >
+            <MenuItem value="">None</MenuItem> {/* Null option */}
+            <MenuItem value="Jr.">Jr.</MenuItem>
+            <MenuItem value="Sr.">Sr.</MenuItem>
+            <MenuItem value="II">II</MenuItem>
+            <MenuItem value="III">III</MenuItem>
+            <MenuItem value="IV">IV</MenuItem>
+            <MenuItem value="V">V</MenuItem>
+          </TextField>
           <TextField
             select
             fullWidth

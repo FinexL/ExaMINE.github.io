@@ -12,9 +12,8 @@ import axios from "axios";
 
 export default function UniversityForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
-    name: "",
-    number_of_students: "",
-    dean: "",
+    university_name: "",
+    dean_name: "",
     dean_email: "",
   });
 
@@ -23,16 +22,21 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       await axios.post("http://localhost:5202/api/universities", {
         ...formData,
-        add_date: new Date().toISOString().split("T")[0],
       });
       onSuccess();
       onClose();
+      setFormData({
+        university_name: "",
+        dean_name: "",
+        dean_email: "",
+      });
     } catch (err) {
-      console.error("Form submission error:", err);
+      console.error("University creation failed:", err);
     }
   };
 
@@ -40,34 +44,38 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>Add University</DialogTitle>
       <DialogContent>
-        <TextField
-          name="name"
-          label="University Name"
-          fullWidth
-          margin="normal"
-          value={formData.name}
-          onChange={handleChange}
-        />
-        <TextField
-          name="dean"
-          label="Dean"
-          fullWidth
-          margin="normal"
-          value={formData.dean}
-          onChange={handleChange}
-        />
-        <TextField
-          name="dean_email"
-          label="Dean Email"
-          fullWidth
-          margin="normal"
-          value={formData.dean_email}
-          onChange={handleChange}
-        />
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <TextField
+            required
+            name="university_name"
+            label="University Name"
+            fullWidth
+            margin="normal"
+            value={formData.university_name}
+            onChange={handleChange}
+          />
+
+          <TextField
+            name="dean_name"
+            label="Dean Name"
+            fullWidth
+            margin="normal"
+            value={formData.dean_name}
+            onChange={handleChange}
+          />
+          <TextField
+            name="dean_email"
+            label="Dean Email"
+            fullWidth
+            margin="normal"
+            value={formData.dean_email}
+            onChange={handleChange}
+          />
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained">
+        <Button onClick={handleSubmit} variant="contained" color="primary">
           Submit
         </Button>
       </DialogActions>

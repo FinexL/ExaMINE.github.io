@@ -1,4 +1,11 @@
-import { Box, Typography, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
+  Chip,
+  Stack,
+} from "@mui/material";
 import {
   DataGrid,
   GridActionsCellItem,
@@ -58,6 +65,20 @@ export default function UserTable() {
     return updatedRow;
   };
 
+  const getStatusDot = (status) => (
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Box
+        sx={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          bgcolor: status === "Active" ? "green" : "gray",
+        }}
+      />
+      <Typography variant="body2">{status}</Typography>
+    </Stack>
+  );
+
   const columns = [
     { field: "user_id", headerName: "ID", width: 80 },
     {
@@ -73,6 +94,14 @@ export default function UserTable() {
       flex: 1,
       minWidth: 100,
       editable: true,
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color="primary"
+          variant="outlined"
+          size="small"
+        />
+      ),
     },
     {
       field: "user_status",
@@ -80,6 +109,7 @@ export default function UserTable() {
       flex: 1,
       minWidth: 100,
       editable: true,
+      renderCell: (params) => getStatusDot(params.value),
     },
     {
       field: "user_email",
@@ -111,6 +141,7 @@ export default function UserTable() {
       field: "actions",
       type: "actions",
       headerName: "Actions",
+      width: 100,
       getActions: ({ id }) => {
         const isEditing = rowModesModel[id]?.mode === GridRowModes.Edit;
         return isEditing
@@ -119,11 +150,13 @@ export default function UserTable() {
                 icon={<SaveIcon />}
                 label="Save"
                 onClick={handleSaveClick(id)}
+                color="primary"
               />,
               <GridActionsCellItem
                 icon={<CancelIcon />}
                 label="Cancel"
                 onClick={handleCancelClick(id)}
+                color="inherit"
               />,
             ]
           : [
@@ -131,11 +164,13 @@ export default function UserTable() {
                 icon={<EditIcon />}
                 label="Edit"
                 onClick={handleEditClick(id)}
+                color="inherit"
               />,
               <GridActionsCellItem
                 icon={<DeleteIcon />}
                 label="Delete"
                 onClick={handleDeleteClick(id)}
+                color="inherit"
               />,
             ];
       },
@@ -150,7 +185,6 @@ export default function UserTable() {
         alignItems="center"
         mb={2}
       >
-        <Typography variant="h5">User Table</Typography>
         <Tooltip title="Add User">
           <IconButton onClick={handleAddClick}>
             <AddIcon color="primary" />
@@ -169,6 +203,24 @@ export default function UserTable() {
           editMode="row"
           processRowUpdate={processRowUpdate}
           onRowEditStop={handleRowEditStop}
+          sx={{
+            "& .MuiDataGrid-columnHeaders": {
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              borderBottom: "2px solid #1565c0",
+              bgcolor: "#f5f5f5",
+            },
+            "& .MuiDataGrid-columnHeaderTitle": {
+              whiteSpace: "normal",
+              lineHeight: "1.2",
+            },
+            "& .MuiDataGrid-row:hover": {
+              bgcolor: "#f0f0f0",
+            },
+            "& .MuiDataGrid-cell": {
+              py: 1,
+            },
+          }}
         />
       </Box>
 

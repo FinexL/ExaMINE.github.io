@@ -17,11 +17,10 @@ function Management() {
 
   return (
     <>
-      <Typography variant="h1" gutterBottom>
-        Management
-      </Typography>
-
       <ContentBox>
+        <Typography variant="h1" gutterBottom>
+          Management
+        </Typography>
         <NavTabs tabs={tabLabels}>
           <StudentTable />
           <UniversityTable />

@@ -13,34 +13,42 @@ const useUniversities = () => {
       const res = await axios.get("http://localhost:5202/api/universities");
       setRows(res.data);
     } catch (err) {
-      console.error("Failed to fetch universities:", err);
-      setError("Failed to load university data.");
+      console.error("Fetch error:", err);
+      setError("Unable to fetch university data.");
     } finally {
       setLoading(false);
     }
   };
 
-  const saveUniversity = async (row) => {
-    try {
-      if (row.isNew) {
-        const res = await axios.post("http://localhost:5202/api/universities", row);
-        return res.data;
-      } else {
-        await axios.put(`http://localhost:5202/api/universities/${row.university_id}`, row);
-        return row;
-      }
-    } catch (err) {
-      console.error("Save university failed:", err);
-      throw err;
+ const saveUniversity = async (row) => {
+  try {
+    const { number_of_students, ...cleanRow } = row;
+
+    if (!row.university_id || row.isNew) {
+      const res = await axios.post("http://localhost:5202/api/universities", cleanRow);
+      setRows((prev) => [...prev, { ...res.data, ...cleanRow }]);
+      return res.data;
+    } else {
+      await axios.put(`http://localhost:5202/api/universities/${row.university_id}`, cleanRow);
+      setRows((prev) =>
+        prev.map((r) => (r.university_id === row.university_id ? { ...r, ...cleanRow } : r))
+      );
+      return row;
     }
-  };
+  } catch (err) {
+    console.error("Save failed:", err.response?.data || err.message);
+    throw err;
+  }
+};
+
+
 
   const deleteUniversity = async (id) => {
     try {
       await axios.delete(`http://localhost:5202/api/universities/${id}`);
-      setRows((prev) => prev.filter((row) => row.university_id !== id));
+      setRows((prev) => prev.filter((r) => r.university_id !== id));
     } catch (err) {
-      console.error("Delete university failed:", err);
+      console.error("Delete failed:", err);
     }
   };
 

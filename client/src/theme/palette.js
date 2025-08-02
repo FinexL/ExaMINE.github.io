@@ -17,6 +17,8 @@ export const palette ={
     },
     text: {
       primary: "#1F2937",
-    
   },
+    error: {
+      main: "#EF4444",
+    },
 };

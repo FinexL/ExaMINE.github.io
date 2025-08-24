@@ -3,7 +3,13 @@ import { grey } from "@mui/material/colors";
 export const typography = {
   fontFamily: "Roboto, Arial, sans-serif",
 
-  
+  pagename: {
+    fontSize: "1.3rem",
+    fontWeight: 500,
+    textAlign: "left",
+    color: grey[900],
+    
+  },
   h1: {
     marginTop: '10px',
     fontSize: "2.5rem",

@@ -25,9 +25,14 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5202/api/universities", {
-        ...formData,
-      });
+      const cleanData = {
+        university_name: formData.university_name.trim(),
+        dean_name: formData.dean_name.trim() || null,
+        dean_email: formData.dean_email.trim() || null,
+      };
+
+      await axios.post("http://localhost:5202/api/universities", cleanData);
+
       onSuccess();
       onClose();
       setFormData({

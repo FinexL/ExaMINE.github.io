@@ -23,9 +23,9 @@ router.get("/", (req, res) => {
   });
 });
 
-
+//POST new student
 router.post("/", (req, res) => {
-  const { first_name, middle_name, last_name, suffix, university_id, add_date } = req.body;
+  const { first_name, middle_name, last_name, suffix, university_id } = req.body;
 
   if (!first_name || !first_name.trim() || !last_name || !last_name.trim()) {
     return res.status(400).json({ error: "First name and last name are required." });
@@ -33,12 +33,12 @@ router.post("/", (req, res) => {
 
   const query = `
     INSERT INTO students 
-    (first_name, middle_name, last_name, suffix, university_id, add_date) 
-    VALUES (?, ?, ?, ?, ?, ?) 
+    (first_name, middle_name, last_name, suffix, university_id) 
+    VALUES (?, ?, ?, ?, ?) 
   `;
   db.query(
     query,
-    [first_name, middle_name, last_name, suffix || null, university_id, add_date],
+    [first_name, middle_name, last_name, suffix || null, university_id],
     (err, result) => {
       if (err) return res.status(500).json({ error: err.message });
       res.status(201).json({ message: "Student added", student_id: result.insertId });

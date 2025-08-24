@@ -1,5 +1,14 @@
 //mui imports
-import { Box, Typography, TextField } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
 import {
   GridActionsCellItem,
   GridRowModes,
@@ -58,26 +67,20 @@ export default function TopicTable() {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
-  const handleDeleteClick = (id) => async () => {
-    try {
-      await deleteTopic(id);
-      setSuccessMessage("Topic deleted successfully!");
-      setSuccessOpen(true);
-    } catch (err) {
-      setSnackbarMessage("Failed to delete topic.");
-      setSnackbarOpen(true);
-    }
+  const handleDeleteClick = (id) => () => {
+    setSelectedId(id);
+    setConfirmOpen(true);
   };
 
   const handleCancelClick = (id) => () => {
-    setRowModesModel({
-      ...rowModesModel,
+    setRowModesModel((prev) => ({
+      ...prev,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
+    }));
 
-    const editedRow = rows.find((row) => row.topic_id === id);
+    const editedRow = rows.find((r) => r.topic_id === id); // or university_id
     if (editedRow?.isNew) {
-      setRows((prev) => prev.filter((row) => row.topic_id !== id));
+      setRows((prev) => prev.filter((r) => r.topic_id !== id)); // or university_id
     }
   };
 
@@ -96,11 +99,19 @@ export default function TopicTable() {
     setSuccessOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedId !== null) {
-      deleteTopic(selectedId);
-      setSelectedId(null);
-      setConfirmOpen(false);
+      try {
+        await deleteTopic(selectedId);
+        setSuccessMessage("Topic deleted successfully!");
+        setSuccessOpen(true);
+      } catch (error) {
+        setSnackbarMessage("Failed to delete topic.");
+        setSnackbarOpen(true);
+      } finally {
+        setConfirmOpen(false);
+        setSelectedId(null);
+      }
     }
   };
   const handleCancelDelete = () => {
@@ -222,13 +233,12 @@ export default function TopicTable() {
                 icon={<DeleteIcon />}
                 label="Delete"
                 onClick={handleDeleteClick(id)}
-                color="inherit"
+                color="error"
               />,
             ];
       },
     },
   ];
-
   if (error) {
     return (
       <Box sx={{ width: "100%" }}>
@@ -236,7 +246,6 @@ export default function TopicTable() {
       </Box>
     );
   }
-
   return (
     <Box>
       <BaseDataGrid
@@ -270,6 +279,20 @@ export default function TopicTable() {
         message={successMessage}
         onClose={() => setSuccessOpen(false)}
       />
+
+      <Dialog open={confirmOpen} onClose={handleCancelDelete}>
+        <DialogTitle>Are you sure you want to delete this topic?</DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -1,11 +1,11 @@
 import NavTabs from "../components/NavTabs";
 import ContentBox from "../components/ContentBox";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 
 import StudentTable from "../components/tables/management/StudentTable";
 import UniversityTable from "../components/tables/management/UniversityTable";
 import TopicTable from "../components/tables/management/TopicTable";
-import UserTable from "../components/tables/management/UserTable";
+//import UserTable from "../components/tables/management/UserTable";
 
 function Management() {
   const tabLabels = [
@@ -18,15 +18,17 @@ function Management() {
   return (
     <>
       <ContentBox>
-        <Typography variant="h1" gutterBottom>
-          Management
-        </Typography>
-        <NavTabs tabs={tabLabels}>
-          <StudentTable />
-          <UniversityTable />
-          <TopicTable />
-          <UserTable />
-        </NavTabs>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="pagename">Management</Typography>
+        </Box>
+        <Box>
+          <NavTabs tabs={tabLabels}>
+            <StudentTable />
+            <UniversityTable />
+            <TopicTable />
+            {/*<UserTable />*/}
+          </NavTabs>
+        </Box>
       </ContentBox>
     </>
   );

@@ -1,5 +1,3 @@
-
-
 export const palette ={
  
     primary: {
@@ -21,4 +19,7 @@ export const palette ={
     error: {
       main: "#EF4444",
     },
+    success:{
+      main:"#1cb71cff",
+    }
 };

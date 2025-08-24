@@ -48,7 +48,8 @@ const useUniversities = () => {
       await axios.delete(`http://localhost:5202/api/universities/${id}`);
       setRows((prev) => prev.filter((r) => r.university_id !== id));
     } catch (err) {
-      console.error("Delete failed:", err);
+      const errorMessage = err.response?.data?.error || "Failed to delete university.";
+      throw new Error(errorMessage);
     }
   };
 

@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+# Environment variables
+.env
+
+# Database exports
+database/schema.sql
 
 # Editor directories and files
 .vscode/*

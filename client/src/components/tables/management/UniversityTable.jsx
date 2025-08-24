@@ -1,17 +1,20 @@
+//add error message when university name is already been added. Already add unique in mysql
+//make a separate dialog file
 //mui imports
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  DialogActions,
+} from "@mui/material";
 import {
   GridActionsCellItem,
   GridRowModes,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-//custom components
-import BaseDataGrid from "../BaseDataGrid";
-import TotalCards from "../../cards/TotalCard";
-import UniversityForm from "../../forms/UniversityForm";
-
-import ErrorSnackbar from "../../alerts/ErrorSnackbar";
-import SuccessSnackbar from "../../alerts/SuccessSnackbar";
 
 //icons
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,6 +24,13 @@ import CancelIcon from "@mui/icons-material/Close";
 //hooks
 import { useState } from "react";
 import useUniversities from "../../../hooks/useUniversities";
+
+//custom Components
+import BaseDataGrid from "../BaseDataGrid";
+import TotalCards from "../../cards/TotalCard";
+import UniversityForm from "../../forms/UniversityForm";
+import ErrorSnackbar from "../../alerts/ErrorSnackbar";
+import SuccessSnackbar from "../../alerts/SuccessSnackbar";
 
 export default function UniversityTable() {
   const {
@@ -58,11 +68,11 @@ export default function UniversityTable() {
 
   const handleSaveClick = (id) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    setSuccessMessage("Saved successfully!");
-    setSuccessOpen(true);
   };
+
   const handleDeleteClick = (id) => () => {
     setSelectedId(id);
+    setDeleteError(false);
     setConfirmOpen(true);
   };
 
@@ -76,6 +86,7 @@ export default function UniversityTable() {
       setRows((prev) => prev.filter((r) => r.university_id !== id));
     }
   };
+  const [deleteError, setDeleteError] = useState(false);
 
   const handleAddClick = () => setOpenForm(true);
   const handleCloseForm = () => setOpenForm(false);
@@ -95,8 +106,12 @@ export default function UniversityTable() {
         setSuccessOpen(true);
         fetchUniversities();
       } catch (err) {
-        setSnackbarMessage("Failed to delete university.");
-        setSnackbarOpen(true);
+        if (err.message.includes("linked to student records")) {
+          setDeleteError(true);
+        } else {
+          setSnackbarMessage(err.message);
+          setSnackbarOpen(true);
+        }
       } finally {
         setConfirmOpen(false);
         setSelectedId(null);
@@ -107,6 +122,7 @@ export default function UniversityTable() {
   const handleCancelDelete = () => {
     setSelectedId(null);
     setConfirmOpen(false);
+    setDeleteError(null);
   };
 
   const processRowUpdate = async (newRow) => {
@@ -120,8 +136,10 @@ export default function UniversityTable() {
 
     try {
       const { number_of_students, ...cleanRow } = newRow;
-      const updatedRow = await saveUniversity(cleanRow);
-      return updatedRow;
+      const updated = await saveUniversity(cleanRow);
+      setSuccessMessage("Saved successfully!");
+      setSuccessOpen(true);
+      return updated;
     } catch (err) {
       console.error("Failed to save university:", err);
       setSnackbarMessage("Failed to save university.");
@@ -192,13 +210,12 @@ export default function UniversityTable() {
                 icon={<DeleteIcon />}
                 label="Delete"
                 onClick={handleDeleteClick(id)}
-                color="inherit"
+                color="error"
               />,
             ];
       },
     },
   ];
-
   if (error) {
     return (
       <Box sx={{ width: "100%" }}>
@@ -206,7 +223,6 @@ export default function UniversityTable() {
       </Box>
     );
   }
-
   return (
     <Box>
       <BaseDataGrid
@@ -218,9 +234,9 @@ export default function UniversityTable() {
         onRowEditStop={handleRowEditStop}
         onAddClick={handleAddClick}
         toolbarButtonLabel="Add University"
-        tableName="UniversityTable"
-        loading={loading}
         getRowId={(row) => row.university_id}
+        loading={loading}
+        tableName="UniversityTable"
       >
         <TotalCards title="Total Universities" count={rows.length} />
       </BaseDataGrid>
@@ -240,6 +256,42 @@ export default function UniversityTable() {
         message={successMessage}
         onClose={() => setSuccessOpen(false)}
       />
+
+      {/*note to self make a separate component in the future*/}
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmOpen && !deleteError} onClose={handleCancelDelete}>
+        <DialogTitle>
+          Are you sure you want to delete this university?
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Error Dialog */}
+      <Dialog open={!!deleteError} onClose={handleCancelDelete}>
+        <DialogTitle>Unable to Delete University</DialogTitle>
+        <DialogContent>
+          <Typography color="error">
+            This university is linked to other records and cannot be deleted.
+            Please remove or reassign those records first.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

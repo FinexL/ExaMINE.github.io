@@ -10,6 +10,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import axios from "axios";
+import SuccessSnackbar from "../alerts/SuccessSnackbar";
+import ErrorSnackbar from "../alerts/ErrorSnackbar";
 
 export default function StudentForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -21,6 +23,11 @@ export default function StudentForm({ open, onClose, onSuccess }) {
   });
 
   const [universities, setUniversities] = useState([]);
+
+  // Snackbar states
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -35,10 +42,8 @@ export default function StudentForm({ open, onClose, onSuccess }) {
   }, []);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -48,6 +53,8 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         ...formData,
         add_date: new Date().toISOString().split("T")[0],
       });
+      setSnackbarMessage("Student added successfully!");
+      setSuccessSnackbarOpen(true);
       onSuccess();
       onClose();
       setFormData({
@@ -59,82 +66,96 @@ export default function StudentForm({ open, onClose, onSuccess }) {
       });
     } catch (err) {
       setSnackbarMessage("Failed to save student.");
+      setErrorSnackbarOpen(true);
       console.error("Student creation failed:", err);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>Add New Student</DialogTitle>
-      <DialogContent>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <TextField
-            fullWidth
-            required
-            name="first_name"
-            label="First Name"
-            margin="normal"
-            value={formData.first_name}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            name="middle_name"
-            label="Middle Name"
-            margin="normal"
-            value={formData.middle_name}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            required
-            name="last_name"
-            label="Last Name"
-            margin="normal"
-            value={formData.last_name}
-            onChange={handleChange}
-          />
-          <TextField
-            select
-            fullWidth
-            name="suffix"
-            label="Suffix"
-            margin="normal"
-            value={formData.suffix}
-            onChange={handleChange}
-          >
-            <MenuItem value="">None</MenuItem> {/* Null option */}
-            <MenuItem value="Jr.">Jr.</MenuItem>
-            <MenuItem value="Sr.">Sr.</MenuItem>
-            <MenuItem value="II">II</MenuItem>
-            <MenuItem value="III">III</MenuItem>
-            <MenuItem value="IV">IV</MenuItem>
-            <MenuItem value="V">V</MenuItem>
-          </TextField>
-          <TextField
-            select
-            fullWidth
-            required
-            name="university_id"
-            label="University"
-            margin="normal"
-            value={formData.university_id}
-            onChange={handleChange}
-          >
-            {universities.map((uni) => (
-              <MenuItem key={uni.university_id} value={uni.university_id}>
-                {uni.university_name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog open={open} onClose={onClose} fullWidth>
+        <DialogTitle>Add New Student</DialogTitle>
+        <DialogContent>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              required
+              name="first_name"
+              label="First Name"
+              margin="normal"
+              value={formData.first_name}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              name="middle_name"
+              label="Middle Name"
+              margin="normal"
+              value={formData.middle_name}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              required
+              name="last_name"
+              label="Last Name"
+              margin="normal"
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+            <TextField
+              select
+              fullWidth
+              name="suffix"
+              label="Suffix"
+              margin="normal"
+              value={formData.suffix}
+              onChange={handleChange}
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="Jr.">Jr.</MenuItem>
+              <MenuItem value="Sr.">Sr.</MenuItem>
+              <MenuItem value="II">II</MenuItem>
+              <MenuItem value="III">III</MenuItem>
+              <MenuItem value="IV">IV</MenuItem>
+              <MenuItem value="V">V</MenuItem>
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              required
+              name="university_id"
+              label="University"
+              margin="normal"
+              value={formData.university_id}
+              onChange={handleChange}
+            >
+              {universities.map((uni) => (
+                <MenuItem key={uni.university_id} value={uni.university_id}>
+                  {uni.university_name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <SuccessSnackbar
+        open={successSnackbarOpen}
+        message={snackbarMessage}
+        onClose={() => setSuccessSnackbarOpen(false)}
+      />
+      <ErrorSnackbar
+        open={errorSnackbarOpen}
+        message={snackbarMessage}
+        onClose={() => setErrorSnackbarOpen(false)}
+      />
+    </>
   );
 }

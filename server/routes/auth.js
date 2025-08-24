@@ -1,3 +1,7 @@
+//just template might change it in the authentication update
+//bcrypt for hashing
+//jsonwebtoken for token
+//note to self learn to add them when focusing on authentication
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
@@ -30,7 +34,7 @@ router.post("/", (req, res) => {
 
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-      // Update last_login
+      
       db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id]);
 
       res.json({ message: "Login successful", token });

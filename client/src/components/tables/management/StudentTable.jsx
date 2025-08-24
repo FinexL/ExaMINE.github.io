@@ -1,5 +1,14 @@
 //mui imports
-import { Box, Typography, TextField, Autocomplete } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Typography,
+  TextField,
+  Autocomplete,
+} from "@mui/material";
 import {
   GridActionsCellItem,
   GridRowModes,
@@ -63,8 +72,6 @@ export default function StudentTable() {
 
   const handleSaveClick = (id) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    setSuccessMessage("Saved successfully!");
-    setSuccessOpen(true);
   };
 
   const handleDeleteClick = (id) => () => {
@@ -141,11 +148,17 @@ export default function StudentTable() {
     }
 
     try {
+      if (!university || !university.university_id) {
+        setSnackbarMessage("University is required.");
+        setSnackbarOpen(true);
+        throw new Error("Validation error: missing university.");
+      }
       const updated = await saveStudent({
         ...newRow,
         university_id: university.university_id,
       });
-
+      setSuccessMessage("Saved successfully!");
+      setSuccessOpen(true);
       return {
         ...updated,
         university_name: university.university_name,
@@ -290,7 +303,7 @@ export default function StudentTable() {
                 icon={<DeleteIcon />}
                 label="Delete"
                 onClick={handleDeleteClick(id)}
-                color="inherit"
+                color="error"
               />,
             ];
       },
@@ -316,9 +329,9 @@ export default function StudentTable() {
         onRowEditStop={handleRowEditStop}
         onAddClick={handleAddClick}
         toolbarButtonLabel="Add Student"
-        tableName="StudentTable"
-        loading={loading}
         getRowId={(row) => row.student_id}
+        loading={loading}
+        tableName="StudentTable"
       >
         <TotalCards title="Total Students" count={rows.length} />
       </BaseDataGrid>
@@ -338,6 +351,23 @@ export default function StudentTable() {
         message={successMessage}
         onClose={() => setSuccessOpen(false)}
       />
+      <Dialog open={confirmOpen} onClose={handleCancelDelete}>
+        <DialogTitle>
+          "Are you sure you want to delete this student?"
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

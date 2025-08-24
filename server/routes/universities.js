@@ -74,11 +74,25 @@ db.query(
 // DELETE university
 router.delete("/:id", (req, res) => {
   const university_id = req.params.id;
-
-  const query = "DELETE FROM universities WHERE university_id = ?";
-  db.query(query, [university_id], (err) => {
+//copy it later in the other table when I need to check if other data being use from other table
+//update also hooks and confirmdelete,cancel delete and handleDeleteClick...
+//also add dialog
+  const checkQuery = "SELECT COUNT(*) AS count FROM students WHERE university_id = ?";
+  db.query(checkQuery, [university_id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "University deleted" });
+    if (results[0].count > 0) {
+
+      return res.status(400).json({
+        error: "University is linked to student records"
+      });
+    }
+
+
+    const deleteQuery = "DELETE FROM universities WHERE university_id = ?";
+    db.query(deleteQuery, [university_id], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "University deleted" });
+    });
   });
 });
 

@@ -20,6 +20,7 @@ app.use("/api/subjects", require("./routes/subjects"));
 app.use("/api/topics", require("./routes/topics"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/login", require("./routes/auth"));
+app.use("/api/grading", require("./routes/grading"));
 
 
 app.listen(port, () => {

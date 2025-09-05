@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const db = require("../config/db");
 
 // GET all universities with student count
 router.get("/", (req, res) => {
@@ -14,6 +14,7 @@ router.get("/", (req, res) => {
     FROM universities u
     LEFT JOIN students s ON u.university_id = s.university_id
     GROUP BY u.university_id, u.university_name, u.dean_name, u.dean_email
+    ORDER BY u.university_name ASC
   `;
   db.query(query, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -65,7 +66,12 @@ db.query(
   query,
   [university_name, dean_name, dean_email, university_id],
   (err) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ error: "Dean email must be unique." });
+    }
+    return res.status(500).json({ error: err.message });
+  }
     res.json({ message: "University updated" });
   }
 );

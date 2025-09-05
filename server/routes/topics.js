@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const db = require("../config/db");
 
 //GET ALL topics
 router.get("/", (req, res) => {
@@ -20,7 +20,6 @@ router.get("/", (req, res) => {
     res.json(results);
   });
 });
-
 
 
 router.post("/", (req, res) => {

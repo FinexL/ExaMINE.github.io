@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -9,6 +9,8 @@ import {
   DialogActions,
 } from "@mui/material";
 import axios from "axios";
+import SuccessSnackbar from "../alerts/SuccessSnackbar";
+import ErrorSnackbar from "../alerts/ErrorSnackbar";
 
 export default function UniversityForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -17,6 +19,10 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     dean_email: "",
   });
 
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -24,15 +30,28 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let missingFields = [];
+
+    if (!formData.university_name.trim()) missingFields.push("University name");
+
+    if (missingFields.length > 0) {
+      const message =
+        missingFields.length === 1
+          ? `${missingFields[0]} is required`
+          : `${missingFields.slice(0, -1).join(", ")} and ${
+              missingFields[missingFields.length - 1]
+            } are required`;
+
+      setSnackbarMessage(message);
+      setErrorSnackbarOpen(true);
+      return;
+    }
     try {
-      const cleanData = {
-        university_name: formData.university_name.trim(),
-        dean_name: formData.dean_name.trim() || null,
-        dean_email: formData.dean_email.trim() || null,
-      };
-
-      await axios.post("http://localhost:5202/api/universities", cleanData);
-
+      await axios.post("http://localhost:5202/api/universities", {
+        ...formData,
+      });
+      SetSnackbarMessage("University created successfully.");
+      setSuccessSnackbarOpen(true);
       onSuccess();
       onClose();
       setFormData({
@@ -41,49 +60,64 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
         dean_email: "",
       });
     } catch (err) {
-      console.error("University creation failed:", err);
+      setSnackbarMessage("Failed to create university.");
+      setErrorSnackbarOpen(true);
+      console.error("University creation failed:", message);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>Add University</DialogTitle>
-      <DialogContent>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <TextField
-            required
-            name="university_name"
-            label="University Name"
-            fullWidth
-            margin="normal"
-            value={formData.university_name}
-            onChange={handleChange}
-          />
+    <>
+      <Dialog open={open} onClose={onClose} fullWidth>
+        <DialogTitle>Add University</DialogTitle>
+        <DialogContent>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              required
+              name="university_name"
+              label="University Name"
+              fullWidth
+              margin="normal"
+              value={formData.university_name}
+              onChange={handleChange}
+            />
 
-          <TextField
-            name="dean_name"
-            label="Dean Name"
-            fullWidth
-            margin="normal"
-            value={formData.dean_name}
-            onChange={handleChange}
-          />
-          <TextField
-            name="dean_email"
-            label="Dean Email"
-            fullWidth
-            margin="normal"
-            value={formData.dean_email}
-            onChange={handleChange}
-          />
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+            <TextField
+              name="dean_name"
+              label="Dean Name"
+              fullWidth
+              margin="normal"
+              value={formData.dean_name}
+              onChange={handleChange}
+            />
+            <TextField
+              name="dean_email"
+              label="Dean Email"
+              fullWidth
+              margin="normal"
+              value={formData.dean_email}
+              onChange={handleChange}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <SuccessSnackbar
+        open={successSnackbarOpen}
+        message={snackbarMessage}
+        onClose={() => setSuccessSnackbarOpen(false)}
+      />
+      <ErrorSnackbar
+        open={errorSnackbarOpen}
+        message={snackbarMessage}
+        onClose={() => setErrorSnackbarOpen(false)}
+      />
+    </>
   );
 }

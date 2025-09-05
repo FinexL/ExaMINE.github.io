@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AppBar,
   Box,
@@ -13,7 +12,8 @@ import {
   MenuItem,
   Icon,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -24,10 +24,17 @@ const pages = [
   { name: "Input Grades", path: "/input-grades" },
   { name: "View Grades", path: "/view-grades" },
   { name: "Management", path: "/management" },
+  //{ name: "Log History", path: "/log-history" },
 ];
 
 function Nav() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/");
+    // Add any additional logout logic here like clearing auth tokens
+  };
+  const [anchorElNav, setAnchorElNav] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -132,7 +139,7 @@ function Nav() {
             </Tooltip>
             <Tooltip title="Logout">
               <IconButton sx={{ color: "white" }}>
-                <LogoutIcon />
+                <LogoutIcon onClick={handleLogout} />
               </IconButton>
             </Tooltip>
           </Box>

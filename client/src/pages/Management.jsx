@@ -1,5 +1,7 @@
 import NavTabs from "../components/NavTabs";
 import ContentBox from "../components/ContentBox";
+import SeasonIndicator from "../components/indicators/SeasonIndicator";
+
 import { Typography, Box } from "@mui/material";
 
 import StudentTable from "../components/tables/management/StudentTable";
@@ -18,8 +20,18 @@ function Management() {
   return (
     <>
       <ContentBox>
-        <Box sx={{ mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <Typography variant="pagename">Management</Typography>
+          <Box>
+            <SeasonIndicator />
+          </Box>
         </Box>
         <Box>
           <NavTabs tabs={tabLabels}>

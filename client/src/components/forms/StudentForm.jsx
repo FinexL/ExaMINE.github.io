@@ -24,7 +24,6 @@ export default function StudentForm({ open, onClose, onSuccess }) {
 
   const [universities, setUniversities] = useState([]);
 
-  // Snackbar states
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -48,10 +47,27 @@ export default function StudentForm({ open, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let missingFields = [];
+
+    if (!formData.first_name.trim()) missingFields.push("First name");
+    if (!formData.last_name.trim()) missingFields.push("Last name");
+    if (!formData.university_id) missingFields.push("University");
+
+    if (missingFields.length > 0) {
+      const message =
+        missingFields.length === 1
+          ? `${missingFields[0]} is required`
+          : `${missingFields.slice(0, -1).join(", ")} and ${
+              missingFields[missingFields.length - 1]
+            } are required`;
+
+      setSnackbarMessage(message);
+      setErrorSnackbarOpen(true);
+      return;
+    }
     try {
       await axios.post("http://localhost:5202/api/students", {
         ...formData,
-        add_date: new Date().toISOString().split("T")[0],
       });
       setSnackbarMessage("Student added successfully!");
       setSuccessSnackbarOpen(true);
@@ -65,7 +81,7 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         university_id: "",
       });
     } catch (err) {
-      setSnackbarMessage("Failed to save student.");
+      setSnackbarMessage("Failed to create student.");
       setErrorSnackbarOpen(true);
       console.error("Student creation failed:", err);
     }

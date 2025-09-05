@@ -1,13 +1,42 @@
 import { Box, Typography, TextField, Button, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CoverImage from "../assets/cover.jpg";
+import { useState } from "react";
+import axios from "axios";
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    // Add validation/auth here
-    navigate("/dashboard");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      // send request to backend
+      const res = await axios.post("http://localhost:5202/api/auth/login", {
+        username,
+        password,
+      });
+
+      // Example: save token/user to localStorage
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // navigate to dashboard if login is successful
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Invalid username or password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -15,10 +44,7 @@ function Login() {
       sx={{
         minHeight: "100vh",
         bgcolor: "background.main",
-        backgroundImage: {
-          xs: "none",
-          md: `url(${CoverImage})`,
-        },
+        backgroundImage: { xs: "none", md: `url(${CoverImage})` },
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",
@@ -54,6 +80,7 @@ function Login() {
         <Typography variant="h4" color="tertiary" gutterBottom>
           Welcome Back
         </Typography>
+
         <Typography
           variant="body1"
           sx={{ color: "text.secondary" }}
@@ -62,33 +89,44 @@ function Login() {
           Please enter your credentials to log in.
         </Typography>
 
-        {/* Input Fields */}
-        <TextField
-          label="Email/Username"
-          fullWidth
-          margin="normal"
-          autoComplete="username"
-        />
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          margin="normal"
-          autoComplete="current-password"
-        />
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
+            fullWidth
+            margin="normal"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        {/* Login Button */}
-        <Button
-          variant="contained"
-          color="tertiary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleLogin}
-        >
-          Login
-        </Button>
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        {/* Forgot Credentials */}
+          {error && (
+            <Typography color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="tertiary"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
+
         <Typography
           variant="body2"
           sx={{

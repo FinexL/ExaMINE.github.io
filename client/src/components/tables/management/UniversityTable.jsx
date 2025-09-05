@@ -1,5 +1,5 @@
 //add error message when university name is already been added. Already add unique in mysql
-//make a separate dialog file
+
 //mui imports
 import {
   Box,
@@ -137,7 +137,7 @@ export default function UniversityTable() {
     try {
       const { number_of_students, ...cleanRow } = newRow;
       const updated = await saveUniversity(cleanRow);
-      setSuccessMessage("Saved successfully!");
+      setSuccessMessage("University updated successfully!");
       setSuccessOpen(true);
       return updated;
     } catch (err) {
@@ -154,27 +154,31 @@ export default function UniversityTable() {
       headerName: "Name",
       flex: 1,
       minWidth: 350,
+      maxWidth: 400,
       editable: true,
     },
     {
       field: "number_of_students",
       headerName: "No. of Students",
       flex: 1,
-      minWidth: 150,
+      minWidth: 100,
+      maxWidth: 150,
       editable: false,
     },
     {
       field: "dean_name",
       headerName: "Dean Name",
       flex: 1,
-      minWidth: 150,
+      minWidth: 300,
+      maxWidth: 350,
       editable: true,
     },
     {
       field: "dean_email",
       headerName: "Dean Email",
       flex: 1,
-      minWidth: 250,
+      minWidth: 300,
+      maxWidth: 350,
       editable: true,
     },
     {
@@ -257,8 +261,6 @@ export default function UniversityTable() {
         onClose={() => setSuccessOpen(false)}
       />
 
-      {/*note to self make a separate component in the future*/}
-      {/* Confirmation Dialog */}
       <Dialog open={confirmOpen && !deleteError} onClose={handleCancelDelete}>
         <DialogTitle>
           Are you sure you want to delete this university?
@@ -277,7 +279,6 @@ export default function UniversityTable() {
         </DialogActions>
       </Dialog>
 
-      {/* Error Dialog */}
       <Dialog open={!!deleteError} onClose={handleCancelDelete}>
         <DialogTitle>Unable to Delete University</DialogTitle>
         <DialogContent>

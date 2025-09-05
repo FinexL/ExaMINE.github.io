@@ -24,20 +24,32 @@ const useUniversities = () => {
   try {
     const { number_of_students, ...cleanRow } = row;
 
+    Object.keys(cleanRow).forEach((key) => {
+      if (cleanRow[key] === "") {
+        cleanRow[key] = null;
+      }
+    });
+
     if (!row.university_id || row.isNew) {
       const res = await axios.post("http://localhost:5202/api/universities", cleanRow);
       setRows((prev) => [...prev, { ...res.data, ...cleanRow }]);
       return res.data;
     } else {
-      await axios.put(`http://localhost:5202/api/universities/${row.university_id}`, cleanRow);
+      await axios.put(
+        `http://localhost:5202/api/universities/${row.university_id}`,
+        cleanRow
+      );
       setRows((prev) =>
-        prev.map((r) => (r.university_id === row.university_id ? { ...r, ...cleanRow } : r))
+        prev.map((r) =>
+          r.university_id === row.university_id ? { ...r, ...cleanRow } : r
+        )
       );
       return row;
     }
   } catch (err) {
-    console.error("Save failed:", err.response?.data || err.message);
-    throw err;
+  const errorMessage = err.response?.data?.error || "Failed to save university.";
+  console.error("Save failed:", errorMessage);
+  throw new Error(errorMessage);
   }
 };
 

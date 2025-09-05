@@ -31,10 +31,10 @@ const theme = createTheme({
             },
               "& .MuiInputLabel-root": {
           color: "#666",
-          transform: "translate(14px, 8px) scale(1)", // 👈 lowered baseline label
+          transform: "translate(14px, 8px) scale(1)", 
         },
         "& .MuiInputLabel-shrink": {
-          transform: "translate(14px, -6px) scale(0.75)", // 👈 closer floating label
+          transform: "translate(14px, -6px) scale(0.75)", 
         },
 
               "& .MuiInputLabel-root.Mui-focused": {color: palette.text.primary,},

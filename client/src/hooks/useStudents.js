@@ -39,6 +39,10 @@ const useStudents = () => {
     fetchStudents();
   }, []);
 
+ const formattedStudents = rows.map((s) => ({
+  full_name: `${s.last_name}, ${s.first_name} ${s.middle_name ?? ""} ${s.suffix ?? ""}`.trim(),
+}));
+
   return {
     rows,
     loading,
@@ -47,6 +51,7 @@ const useStudents = () => {
     saveStudent,
     deleteStudent,
     setRows,
+    formattedStudents
   };
 };
 

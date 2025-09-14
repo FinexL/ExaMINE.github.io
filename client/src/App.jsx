@@ -1,5 +1,5 @@
 import "./App.css";
-import Nav from "./components/Nav";
+import Nav from "./components/navigations/Nav";
 import Management from "./pages/Management";
 import Dashboard from "./pages/Dashboard";
 import InputGrades from "./pages/InputGrades";
@@ -8,6 +8,10 @@ import LogHistory from "./pages/LogHistory";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import PageNotFound from "./pages/PageNotFound";
+
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 function App() {
   const location = useLocation();

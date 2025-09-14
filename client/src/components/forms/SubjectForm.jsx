@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -7,35 +7,20 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  MenuItem,
 } from "@mui/material";
 import axios from "axios";
 import SuccessSnackbar from "../alerts/SuccessSnackbar";
 import ErrorSnackbar from "../alerts/ErrorSnackbar";
 
-export default function TopicForm({ open, onClose, onSuccess }) {
+export default function SubjectForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
-    topic_name: "",
-    subject_id: "",
+    subject_name: "",
+    subject_code: "",
   });
-
-  const [subjects, setSubjects] = useState([]);
 
   const [SuccessSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [ErrorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const res = await axios.get("http://localhost:5202/api/subjects");
-        setSubjects(res.data);
-      } catch (err) {
-        console.error("Failed to load subjects:", err);
-      }
-    };
-    fetchSubjects();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,9 +34,7 @@ export default function TopicForm({ open, onClose, onSuccess }) {
     e.preventDefault();
 
     let missingFields = [];
-
-    if (!formData.topic_name.trim()) missingFields.push("Topic name");
-    if (!formData.subject_id) missingFields.push("Subject");
+    if (!formData.subject_name.trim()) missingFields.push("Subject name");
 
     if (missingFields.length > 0) {
       const message =
@@ -67,55 +50,47 @@ export default function TopicForm({ open, onClose, onSuccess }) {
     }
 
     try {
-      await axios.post("http://localhost:5202/api/topics", {
+      await axios.post("http://localhost:5202/api/subjects", {
         ...formData,
       });
-      setSnackbarMessage("Topic added successfully!");
+      setSnackbarMessage("Subject added successfully!");
       setSuccessSnackbarOpen(true);
       onSuccess();
       onClose();
       setFormData({
-        topic_name: "",
-        subject_id: "",
+        subject_name: "",
+        subject_code: "",
       });
     } catch (err) {
-      setSnackbarMessage("Failed to create topic.");
+      setSnackbarMessage("Failed to create subject.");
       setErrorSnackbarOpen(true);
-      console.error("Topic creation failed:", err);
+      console.error("Subject creation failed:", err);
     }
   };
 
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth>
-        <DialogTitle>Add New Topic</DialogTitle>
+        <DialogTitle>Add New Subject</DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               fullWidth
               required
-              name="topic_name"
-              label="Topic Name"
+              name="subject_name"
+              label="Subject Name"
               margin="normal"
-              value={formData.topic_name}
+              value={formData.subject_name}
               onChange={handleChange}
-            ></TextField>
+            />
             <TextField
-              select
               fullWidth
-              required
-              name="subject_id"
-              label="Subject"
+              name="subject_code"
+              label="Subject Code"
               margin="normal"
-              value={formData.subject_id}
+              value={formData.subject_code}
               onChange={handleChange}
-            >
-              {subjects.map((sub) => (
-                <MenuItem key={sub.subject_id} value={sub.subject_id}>
-                  {sub.subject_name}
-                </MenuItem>
-              ))}
-            </TextField>
+            />
           </Box>
         </DialogContent>
         <DialogActions>

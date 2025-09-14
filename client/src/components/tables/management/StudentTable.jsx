@@ -16,12 +16,10 @@ import {
 } from "@mui/x-data-grid";
 //custom components
 import TotalCards from "../../cards/TotalCard";
-
 import StudentForm from "../../forms/StudentForm";
-
 import ErrorSnackbar from "../../alerts/ErrorSnackbar";
 import SuccessSnackbar from "../../alerts/SuccessSnackbar";
-import BaseDataGrid from "../BaseDataGrid";
+import BaseDataGrid from "./BaseDataGrid";
 //icons
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
@@ -52,6 +50,7 @@ export default function StudentTable() {
   const [successMessage, setSuccessMessage] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [rowUniversityModes, setRowUniversityModes] = useState({});
 
   const suffixOptions = ["", "Jr.", "Sr.", "II", "III", "IV", "V"];
 
@@ -124,10 +123,16 @@ export default function StudentTable() {
   };
 
   const processRowUpdate = async (newRow) => {
-    const { first_name, last_name, suffix, university_name } = newRow;
+    const { first_name, last_name, suffix, modes, university_name } = newRow;
 
     if (!first_name?.trim() || !last_name?.trim()) {
-      setSnackbarMessage("First name and Last name is required.");
+      setSnackbarMessage("First name and Last name are required.");
+      setSnackbarOpen(true);
+      throw new Error("Validation error");
+    }
+
+    if (!modes?.trim()) {
+      setSnackbarMessage("Mode is required.");
       setSnackbarOpen(true);
       throw new Error("Validation error");
     }
@@ -148,17 +153,15 @@ export default function StudentTable() {
     }
 
     try {
-      if (!university || !university.university_id) {
-        setSnackbarMessage("University is required.");
-        setSnackbarOpen(true);
-        throw new Error("Validation error: missing university.");
-      }
       const updated = await saveStudent({
         ...newRow,
         university_id: university.university_id,
+        modes,
       });
+
       setSuccessMessage("Saved successfully!");
       setSuccessOpen(true);
+
       return {
         ...updated,
         university_name: university.university_name,
@@ -171,17 +174,63 @@ export default function StudentTable() {
     }
   };
 
+  // --- Editable Cells ---
+
   const UniversityEditCell = ({ id, value, field, api }) => {
     const options = universities.map((u) => u.university_name);
 
     const handleChange = (_, newValue) => {
-      if (options.includes(newValue)) {
-        api.setEditCellValue({
-          id,
-          field: "university_name",
-          value: newValue,
-        });
+      const uni = universities.find((u) => u.university_name === newValue);
+
+      // store university mode per row
+      setRowUniversityModes((prev) => ({
+        ...prev,
+        [id]: uni?.modes || "",
+      }));
+
+      // reset modes if current mode invalid
+      const currentMode = api.getRow(id)?.modes;
+      const validModes =
+        uni?.modes === "Onsite & Inhouse"
+          ? ["Onsite", "Inhouse"]
+          : uni?.modes
+            ? [uni?.modes]
+            : [];
+      if (!validModes.includes(currentMode)) {
+        api.setEditCellValue({ id, field: "modes", value: "" });
       }
+
+      // update university name
+      api.setEditCellValue({ id, field: "university_name", value: newValue });
+      // DO NOT call api.commitCellChange
+    };
+
+    return (
+      <Autocomplete
+        options={options}
+        value={value || ""}
+        onChange={handleChange}
+        renderInput={(params) => <TextField {...params} variant="standard" />}
+        fullWidth
+        disableClearable
+        freeSolo={false}
+      />
+    );
+  };
+
+  const ModesEditCell = ({ id, value, field, api }) => {
+    const universityMode = rowUniversityModes[id] || "";
+
+    const options =
+      universityMode === "Onsite & Inhouse"
+        ? ["Onsite", "Inhouse"]
+        : universityMode
+          ? [universityMode]
+          : [];
+
+    const handleChange = (_, newValue) => {
+      api.setEditCellValue({ id, field, value: newValue });
+      // DO NOT call api.commitCellChange
     };
 
     return (
@@ -199,11 +248,7 @@ export default function StudentTable() {
 
   const SuffixEditCell = ({ id, value, field, api }) => {
     const handleChange = (_, newValue) => {
-      api.setEditCellValue({
-        id,
-        field: "suffix",
-        value: newValue,
-      });
+      api.setEditCellValue({ id, field: "suffix", value: newValue });
     };
 
     return (
@@ -220,6 +265,7 @@ export default function StudentTable() {
     );
   };
 
+  // --- Columns ---
   const columns = [
     {
       field: "student_id",
@@ -233,7 +279,6 @@ export default function StudentTable() {
       headerName: "First Name",
       flex: 1,
       minWidth: 120,
-      maxWidth: 250,
       editable: true,
     },
     {
@@ -241,7 +286,6 @@ export default function StudentTable() {
       headerName: "Middle Name",
       flex: 1,
       minWidth: 120,
-      maxWidth: 250,
       editable: true,
     },
     {
@@ -249,7 +293,6 @@ export default function StudentTable() {
       headerName: "Last Name",
       flex: 1,
       minWidth: 120,
-      maxWidth: 250,
       editable: true,
     },
     {
@@ -257,15 +300,21 @@ export default function StudentTable() {
       headerName: "Suffix",
       flex: 1,
       minWidth: 80,
-      maxWidth: 100,
       editable: true,
       renderEditCell: (params) => <SuffixEditCell {...params} />,
+    },
+    {
+      field: "modes",
+      headerName: "Modes",
+      minWidth: 100,
+      maxWidth: 150,
+      editable: true,
+      renderEditCell: (params) => <ModesEditCell {...params} />,
     },
     {
       field: "university_name",
       headerName: "University",
       minWidth: 250,
-      maxWidth: 400,
       flex: 1,
       editable: true,
       renderEditCell: (params) => <UniversityEditCell {...params} />,
@@ -341,6 +390,7 @@ export default function StudentTable() {
         onClose={handleCloseForm}
         onSuccess={handleFormSuccess}
       />
+
       <ErrorSnackbar
         open={snackbarOpen}
         message={snackbarMessage}
@@ -351,10 +401,9 @@ export default function StudentTable() {
         message={successMessage}
         onClose={() => setSuccessOpen(false)}
       />
+
       <Dialog open={confirmOpen} onClose={handleCancelDelete}>
-        <DialogTitle>
-          "Are you sure you want to delete this student?"
-        </DialogTitle>
+        <DialogTitle>Are you sure you want to delete this student?</DialogTitle>
         <DialogActions>
           <Button onClick={handleCancelDelete} color="primary">
             Cancel

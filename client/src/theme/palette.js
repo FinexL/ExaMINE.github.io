@@ -1,13 +1,13 @@
 export const palette ={
  
     primary: {
-      main: "#2563EB",
+      main: "#16b9f9ff",
     },
     secondary: {
       main: "#ffffffff", 
     },
     tertiary: {
-      main: "#F97316",
+      main: "#16b9f9ff",
     },
     background: {
       default: "#ffffffff", 
@@ -15,6 +15,7 @@ export const palette ={
     },
     text: {
       primary: "#1F2937",
+      secondary: "#000000ff"
   },
     error: {
       main: "#EF4444",

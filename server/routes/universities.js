@@ -8,9 +8,11 @@ router.get("/", (req, res) => {
     SELECT 
       u.university_id,
       u.university_name,
+      u.modes,
       COUNT(s.student_id) AS number_of_students,
       u.dean_name,
       u.dean_email
+      
     FROM universities u
     LEFT JOIN students s ON u.university_id = s.university_id
     GROUP BY u.university_id, u.university_name, u.dean_name, u.dean_email
@@ -24,20 +26,20 @@ router.get("/", (req, res) => {
 
 // POST new university
 router.post("/", (req, res) => {
-  const { university_name, dean_name, dean_email } = req.body;
+  const { university_name, modes, dean_name, dean_email } = req.body;
 
   if (!university_name) {
     return res.status(400).json({ error: "University Name is required." });
   }
 
   const query = `
-    INSERT INTO universities (university_name, dean_name, dean_email)
-    VALUES (?, ?, ?)
+    INSERT INTO universities (university_name, modes, dean_name, dean_email)
+    VALUES (?, ?, ?, ?)
   `;
 
   db.query(
     query,
-    [university_name , dean_name, dean_email],
+    [university_name ,modes, dean_name, dean_email],
     (err, result) => {
       if (err) return res.status(500).json({ error: err.message });
       res.status(201).json({ message: "University added", university_id: result.insertId });
@@ -48,7 +50,7 @@ router.post("/", (req, res) => {
 // PUT update university
 router.put("/:id", (req, res) => {
   const university_id = req.params.id;
-  const { university_name, dean_name, dean_email } = req.body;
+  const { university_name, modes, dean_name, dean_email } = req.body;
 
   if (!university_name ) {
     return res.status(400).json({ error: "Name is required." });
@@ -57,6 +59,7 @@ router.put("/:id", (req, res) => {
   const query = `
   UPDATE universities SET
     university_name = ?,
+    modes = ?,
     dean_name = ?,
     dean_email = ?
   WHERE university_id = ?
@@ -64,17 +67,20 @@ router.put("/:id", (req, res) => {
 
 db.query(
   query,
-  [university_name, dean_name, dean_email, university_id],
-  (err) => {
+  [university_name, modes, dean_name, dean_email, university_id],
+  (err, result) => {
     if (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      return res.status(400).json({ error: "Dean email must be unique." });
+      if (err.code === "ER_DUP_ENTRY") {
+        return res
+          .status(400)
+          .json({ error: "University name already exists." });
+      }
+      return res.status(500).json({ error: err.message });
     }
-    return res.status(500).json({ error: err.message });
-  }
-    res.json({ message: "University updated" });
+    res.status(201).json({ message: "University added", university_id: result.insertId });
   }
 );
+
 });
 
 // DELETE university

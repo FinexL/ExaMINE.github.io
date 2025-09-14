@@ -20,13 +20,14 @@ export default function StudentForm({ open, onClose, onSuccess }) {
     last_name: "",
     suffix: "",
     university_id: "",
+    modes: "",
   });
 
   const [universities, setUniversities] = useState([]);
-
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [availableModes, setAvailableModes] = useState([]);
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -40,6 +41,25 @@ export default function StudentForm({ open, onClose, onSuccess }) {
     fetchUniversities();
   }, []);
 
+  // Update available modes when university changes
+  useEffect(() => {
+    if (formData.university_id) {
+      const uni = universities.find(
+        (u) => u.university_id === formData.university_id
+      );
+      if (uni) {
+        // Map university.modes to array
+        if (uni.modes === "Onsite & Inhouse")
+          setAvailableModes(["Onsite", "Inhouse"]);
+        else setAvailableModes([uni.modes]);
+        setFormData((prev) => ({ ...prev, modes: "" })); // reset mode
+      }
+    } else {
+      setAvailableModes([]);
+      setFormData((prev) => ({ ...prev, modes: "" }));
+    }
+  }, [formData.university_id, universities]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -47,28 +67,25 @@ export default function StudentForm({ open, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let missingFields = [];
 
+    const missingFields = [];
     if (!formData.first_name.trim()) missingFields.push("First name");
     if (!formData.last_name.trim()) missingFields.push("Last name");
     if (!formData.university_id) missingFields.push("University");
+    if (!formData.modes) missingFields.push("Mode");
 
     if (missingFields.length > 0) {
       const message =
         missingFields.length === 1
           ? `${missingFields[0]} is required`
-          : `${missingFields.slice(0, -1).join(", ")} and ${
-              missingFields[missingFields.length - 1]
-            } are required`;
-
+          : `${missingFields.slice(0, -1).join(", ")} and ${missingFields.slice(-1)} are required`;
       setSnackbarMessage(message);
       setErrorSnackbarOpen(true);
       return;
     }
+
     try {
-      await axios.post("http://localhost:5202/api/students", {
-        ...formData,
-      });
+      await axios.post("http://localhost:5202/api/students", formData);
       setSnackbarMessage("Student added successfully!");
       setSuccessSnackbarOpen(true);
       onSuccess();
@@ -79,11 +96,12 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         last_name: "",
         suffix: "",
         university_id: "",
+        modes: "",
       });
     } catch (err) {
+      console.error("Student creation failed:", err);
       setSnackbarMessage("Failed to create student.");
       setErrorSnackbarOpen(true);
-      console.error("Student creation failed:", err);
     }
   };
 
@@ -128,14 +146,13 @@ export default function StudentForm({ open, onClose, onSuccess }) {
               value={formData.suffix}
               onChange={handleChange}
             >
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="Jr.">Jr.</MenuItem>
-              <MenuItem value="Sr.">Sr.</MenuItem>
-              <MenuItem value="II">II</MenuItem>
-              <MenuItem value="III">III</MenuItem>
-              <MenuItem value="IV">IV</MenuItem>
-              <MenuItem value="V">V</MenuItem>
+              {["", "Jr.", "Sr.", "II", "III", "IV", "V"].map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s || "None"}
+                </MenuItem>
+              ))}
             </TextField>
+
             <TextField
               select
               fullWidth
@@ -152,11 +169,28 @@ export default function StudentForm({ open, onClose, onSuccess }) {
                 </MenuItem>
               ))}
             </TextField>
+
+            <TextField
+              select
+              fullWidth
+              required
+              name="modes"
+              label="Mode"
+              margin="normal"
+              value={formData.modes}
+              onChange={handleChange}
+            >
+              {availableModes.map((mode) => (
+                <MenuItem key={mode} value={mode}>
+                  {mode}
+                </MenuItem>
+              ))}
+            </TextField>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
+          <Button onClick={handleSubmit} variant="contained">
             Submit
           </Button>
         </DialogActions>

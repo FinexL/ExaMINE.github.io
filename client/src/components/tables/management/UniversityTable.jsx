@@ -9,6 +9,8 @@ import {
   DialogContent,
   Typography,
   DialogActions,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import {
   GridActionsCellItem,
@@ -26,7 +28,7 @@ import { useState } from "react";
 import useUniversities from "../../../hooks/useUniversities";
 
 //custom Components
-import BaseDataGrid from "../BaseDataGrid";
+import BaseDataGrid from "./BaseDataGrid";
 import TotalCards from "../../cards/TotalCard";
 import UniversityForm from "../../forms/UniversityForm";
 import ErrorSnackbar from "../../alerts/ErrorSnackbar";
@@ -90,6 +92,26 @@ export default function UniversityTable() {
 
   const handleAddClick = () => setOpenForm(true);
   const handleCloseForm = () => setOpenForm(false);
+  const modesOptions = ["Onsite", "Inhouse", "Onsite & Inhouse"];
+  const ModesEditCell = ({ id, value, field, api }) => {
+    const handleChange = (_, newValue) => {
+      api.setEditCellValue({
+        id,
+        field: "modes",
+        value: newValue,
+      });
+    };
+    return (
+      <Autocomplete
+        options={modesOptions}
+        value={value || ""}
+        onChange={handleChange}
+        renderInput={(params) => <TextField {...params} variant="standard" />}
+        fullWidth
+        disableClearable
+      />
+    );
+  };
 
   const handleFormSuccess = () => {
     fetchUniversities();
@@ -137,14 +159,29 @@ export default function UniversityTable() {
     try {
       const { number_of_students, ...cleanRow } = newRow;
       const updated = await saveUniversity(cleanRow);
-      setSuccessMessage("University updated successfully!");
+      setSuccessMessage("University saved successfully!");
       setSuccessOpen(true);
       return updated;
     } catch (err) {
       console.error("Failed to save university:", err);
-      setSnackbarMessage("Failed to save university.");
+
+      if (
+        err.response?.status === 400 &&
+        err.response?.data?.code === "ER_DUP_ENTRY"
+      ) {
+        setSnackbarMessage(
+          "University name already exists. Please use a different name."
+        );
+      } else if (err.message?.includes("Duplicate entry")) {
+        setSnackbarMessage(
+          "University name already exists. Please use a different name."
+        );
+      } else {
+        setSnackbarMessage("Failed to save university.");
+      }
+
       setSnackbarOpen(true);
-      return newRow;
+      return newRow; // revert changes
     }
   };
 
@@ -156,6 +193,15 @@ export default function UniversityTable() {
       minWidth: 350,
       maxWidth: 400,
       editable: true,
+    },
+    {
+      field: "modes",
+      headerName: "Modes",
+      flex: 1,
+      minWidth: 100,
+      maxWidth: 150,
+      editable: true,
+      renderEditCell: (params) => <ModesEditCell {...params} />,
     },
     {
       field: "number_of_students",

@@ -1,4 +1,4 @@
-import NavTabs from "../components/NavTabs";
+import NavTabs from "../components/navigations/NavTabs";
 import ContentBox from "../components/ContentBox";
 import SeasonIndicator from "../components/indicators/SeasonIndicator";
 
@@ -6,17 +6,10 @@ import { Typography, Box } from "@mui/material";
 
 import StudentTable from "../components/tables/management/StudentTable";
 import UniversityTable from "../components/tables/management/UniversityTable";
-import TopicTable from "../components/tables/management/TopicTable";
+import SubjectTable from "../components/tables/management/SubjectTable";
 //import UserTable from "../components/tables/management/UserTable";
 
 function Management() {
-  const tabLabels = [
-    "Student Data",
-    "University Data",
-    "Topic Data",
-    "User Data",
-  ];
-
   return (
     <>
       <ContentBox>
@@ -34,10 +27,10 @@ function Management() {
           </Box>
         </Box>
         <Box>
-          <NavTabs tabs={tabLabels}>
+          <NavTabs tabs={["Student", "University", "Subject", "User"]}>
             <StudentTable />
             <UniversityTable />
-            <TopicTable />
+            <SubjectTable />
             {/*<UserTable />*/}
           </NavTabs>
         </Box>

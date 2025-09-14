@@ -1,8 +1,8 @@
 import { Button, Tooltip, useMediaQuery } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from "@mui/icons-material/Save";
 import { useTheme } from "@mui/material/styles";
 
-const AddButton = ({ onClick, label = "Add", color = "primary" }) => {
+const SaveButton = ({ onClick, label = "Save", color = "primary" }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -16,7 +16,7 @@ const AddButton = ({ onClick, label = "Add", color = "primary" }) => {
         boxShadow: "none",
         borderRadius: 5,
         fontSize: isMobile ? "0.4rem" : "0.8rem",
-        maxWidth: isMobile ? 100 : 200,
+        maxWidth: isMobile ? 50 : 100,
         minWidth: isMobile ? 36 : 64,
         padding: isMobile ? "6px" : "8px 16px",
         display: "flex",
@@ -25,10 +25,10 @@ const AddButton = ({ onClick, label = "Add", color = "primary" }) => {
       }}
     >
       {isMobile ? (
-        <AddIcon />
+        <SaveIcon />
       ) : (
         <>
-          <AddIcon sx={{ mr: 1 }} />
+          <SaveIcon sx={{ mr: 1 }} />
           {label}
         </>
       )}
@@ -36,4 +36,4 @@ const AddButton = ({ onClick, label = "Add", color = "primary" }) => {
   );
 };
 
-export default AddButton;
+export default SaveButton;

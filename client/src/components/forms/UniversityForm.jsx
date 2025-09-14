@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  MenuItem,
 } from "@mui/material";
 import axios from "axios";
 import SuccessSnackbar from "../alerts/SuccessSnackbar";
@@ -17,6 +18,7 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     university_name: "",
     dean_name: "",
     dean_email: "",
+    modes: "",
   });
 
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     let missingFields = [];
 
     if (!formData.university_name.trim()) missingFields.push("University name");
+    if (!formData.modes) missingFields.push("Modes");
 
     if (missingFields.length > 0) {
       const message =
@@ -46,11 +49,10 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
       setErrorSnackbarOpen(true);
       return;
     }
+
     try {
-      await axios.post("http://localhost:5202/api/universities", {
-        ...formData,
-      });
-      SetSnackbarMessage("University created successfully.");
+      await axios.post("http://localhost:5202/api/universities", formData);
+      setSnackbarMessage("University created successfully.");
       setSuccessSnackbarOpen(true);
       onSuccess();
       onClose();
@@ -58,11 +60,18 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
         university_name: "",
         dean_name: "",
         dean_email: "",
+        modes: "",
       });
     } catch (err) {
-      setSnackbarMessage("Failed to create university.");
+      if (err.response?.data?.code === "ER_DUP_ENTRY") {
+        setSnackbarMessage(
+          "University name already exists. Please use a different name."
+        );
+      } else {
+        setSnackbarMessage("Failed to create university.");
+      }
       setErrorSnackbarOpen(true);
-      console.error("University creation failed:", message);
+      console.error("University creation failed:", err);
     }
   };
 
@@ -98,6 +107,21 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
               value={formData.dean_email}
               onChange={handleChange}
             />
+
+            <TextField
+              select
+              fullWidth
+              required
+              name="modes"
+              label="Modes"
+              margin="normal"
+              value={formData.modes}
+              onChange={handleChange}
+            >
+              <MenuItem value="Onsite">Onsite</MenuItem>
+              <MenuItem value="Inhouse">Inhouse</MenuItem>
+              <MenuItem value="Onsite & Inhouse">Onsite & Inhouse</MenuItem>
+            </TextField>
           </Box>
         </DialogContent>
         <DialogActions>

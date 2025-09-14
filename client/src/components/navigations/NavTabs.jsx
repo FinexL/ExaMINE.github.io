@@ -1,8 +1,8 @@
-import React from "react";
+import { useState, Children } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 
 function NavTabs({ tabs, children }) {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -51,7 +51,7 @@ function NavTabs({ tabs, children }) {
       </Tabs>
 
       <Box sx={{ flexGrow: 1, p: 2, overflow: "auto" }}>
-        {React.Children.map(children, (child, index) =>
+        {Children.map(children, (child, index) =>
           index === value ? <Box>{child}</Box> : null
         )}
       </Box>

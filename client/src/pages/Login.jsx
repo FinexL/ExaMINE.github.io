@@ -78,7 +78,7 @@ function Login() {
         </Typography>
 
         <Typography variant="h4" color="tertiary" gutterBottom>
-          Welcome Back
+          Welcome!
         </Typography>
 
         <Typography

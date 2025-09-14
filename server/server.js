@@ -18,10 +18,11 @@ app.use(express.json());
 app.use("/api/students", require("./routes/students"));
 app.use("/api/universities", require("./routes/universities"));
 app.use("/api/subjects", require("./routes/subjects"));
-app.use("/api/topics", require("./routes/topics"));
 
-app.use("/api/exams", require("./routes/exams"));
-app.use("/api/grading", require("./routes/grading"));
+
+app.use("/api/subject_scores", require("./routes/subjectScores"));
+app.use("/api/student_grades", require("./routes/studentGrades"));
+
 app.use("/api/seasons", require("./routes/season"));
 
 app.use("/api", require("./routes/users"));

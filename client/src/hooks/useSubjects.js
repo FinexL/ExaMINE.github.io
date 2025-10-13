@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 const useSubjects = () => {
   const [rows, setRows] = useState([]);
@@ -10,7 +10,7 @@ const useSubjects = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("http://localhost:5202/api/subjects");
+      const res = await api.get("/subjects");
       setRows(res.data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -31,14 +31,14 @@ const useSubjects = () => {
       });
 
       if (!row.subject_id || row.isNew) {
-        // Create new subject
-        const res = await axios.post("http://localhost:5202/api/subjects", cleanRow);
+        
+        const res = await api.post("/subjects", cleanRow, { withCredentials: true });
         setRows((prev) => [...prev, { ...res.data, ...cleanRow }]);
         return res.data;
       } else {
-        // Update subject
-        await axios.put(
-          `http://localhost:5202/api/subjects/${row.subject_id}`,
+        
+        await api.put(
+          `/subjects/${row.subject_id}`,
           cleanRow
         );
         setRows((prev) =>
@@ -57,7 +57,7 @@ const useSubjects = () => {
 
   const deleteSubject = async (id) => {
     try {
-      await axios.delete(`http://localhost:5202/api/subjects/${id}`);
+      await api.delete(`/subjects/${id}`);
       setRows((prev) => prev.filter((r) => r.subject_id !== id));
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Failed to delete subject.";

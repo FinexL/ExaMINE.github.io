@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   TextField,
@@ -9,9 +9,10 @@ import {
   DialogActions,
   MenuItem,
 } from "@mui/material";
-import axios from "axios";
-import SuccessSnackbar from "../alerts/SuccessSnackbar";
+import api from "../../api/axios";
+import useSnackbar from "../../hooks/useSnackbar";
 import ErrorSnackbar from "../alerts/ErrorSnackbar";
+import SuccessSnackbar from "../alerts/SuccessSnackbar";
 
 export default function UniversityForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -21,9 +22,14 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
     modes: "",
   });
 
-  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
-  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [restoreDialog, setRestoreDialog] = useState({
+    open: false,
+    message: "",
+    university_id: null,
+  });
+
+  const successSnackbar = useSnackbar();
+  const errorSnackbar = useSnackbar();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,9 +38,9 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let missingFields = [];
 
-    if (!formData.university_name.trim()) missingFields.push("University name");
+    const missingFields = [];
+    if (!formData.university_name.trim()) missingFields.push("School name");
     if (!formData.modes) missingFields.push("Modes");
 
     if (missingFields.length > 0) {
@@ -44,18 +50,17 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
           : `${missingFields.slice(0, -1).join(", ")} and ${
               missingFields[missingFields.length - 1]
             } are required`;
-
-      setSnackbarMessage(message);
-      setErrorSnackbarOpen(true);
+      errorSnackbar.show(message);
       return;
     }
 
     try {
-      await axios.post("http://localhost:5202/api/universities", formData);
-      setSnackbarMessage("University created successfully.");
-      setSuccessSnackbarOpen(true);
-      onSuccess();
-      onClose();
+      await api.post("/universities", formData, {
+        withCredentials: true,
+      });
+      successSnackbar.show("School created successfully!");
+      onSuccess?.();
+      onClose?.();
       setFormData({
         university_name: "",
         dean_name: "",
@@ -63,34 +68,59 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
         modes: "",
       });
     } catch (err) {
-      if (err.response?.data?.code === "ER_DUP_ENTRY") {
-        setSnackbarMessage(
-          "University name already exists. Please use a different name."
+      const error = err.response?.data?.error;
+
+      if (error === "DUPLICATE") {
+        errorSnackbar.show(
+          "School name already exists. Please use a different name."
         );
+      } else if (error === "ARCHIVED_EXISTS") {
+        // open restore confirmation dialog
+        setRestoreDialog({
+          open: true,
+          message: err.response?.data?.message,
+          university_id: err.response?.data?.university_id,
+        });
       } else {
-        setSnackbarMessage("Failed to create university.");
+        errorSnackbar.show("Failed to create school.");
       }
-      setErrorSnackbarOpen(true);
-      console.error("University creation failed:", err);
+      console.error("School creation failed:", err);
     }
+  };
+
+  const handleRestore = async () => {
+    try {
+      await api.post(`/universities/${restoreDialog.university_id}/restore`);
+      successSnackbar.show("School restored successfully!");
+      onSuccess?.();
+      onClose?.();
+    } catch (restoreErr) {
+      errorSnackbar.show("Failed to restore school.");
+    } finally {
+      setRestoreDialog({ open: false, message: "", university_id: null });
+    }
+  };
+
+  const handleCancelRestore = () => {
+    setRestoreDialog({ open: false, message: "", university_id: null });
   };
 
   return (
     <>
+      {/* Create / Edit Form */}
       <Dialog open={open} onClose={onClose} fullWidth>
-        <DialogTitle>Add University</DialogTitle>
+        <DialogTitle>Add School</DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               required
               name="university_name"
-              label="University Name"
+              label="School Name"
               fullWidth
               margin="normal"
               value={formData.university_name}
               onChange={handleChange}
             />
-
             <TextField
               name="dean_name"
               label="Dean Name"
@@ -107,7 +137,6 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
               value={formData.dean_email}
               onChange={handleChange}
             />
-
             <TextField
               select
               fullWidth
@@ -120,7 +149,6 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
             >
               <MenuItem value="Onsite">Onsite</MenuItem>
               <MenuItem value="Inhouse">Inhouse</MenuItem>
-              <MenuItem value="Onsite & Inhouse">Onsite & Inhouse</MenuItem>
             </TextField>
           </Box>
         </DialogContent>
@@ -132,15 +160,30 @@ export default function UniversityForm({ open, onClose, onSuccess }) {
         </DialogActions>
       </Dialog>
 
+      {/* Restore Confirmation Dialog */}
+      <Dialog open={restoreDialog.open} onClose={handleCancelRestore}>
+        <DialogTitle>Restore School?</DialogTitle>
+        <DialogContent>{restoreDialog.message}</DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelRestore} color="primary">
+            No
+          </Button>
+          <Button onClick={handleRestore} color="primary" variant="contained">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbars */}
       <SuccessSnackbar
-        open={successSnackbarOpen}
-        message={snackbarMessage}
-        onClose={() => setSuccessSnackbarOpen(false)}
+        open={successSnackbar.open}
+        message={successSnackbar.message}
+        onClose={successSnackbar.close}
       />
       <ErrorSnackbar
-        open={errorSnackbarOpen}
-        message={snackbarMessage}
-        onClose={() => setErrorSnackbarOpen(false)}
+        open={errorSnackbar.open}
+        message={errorSnackbar.message}
+        onClose={errorSnackbar.close}
       />
     </>
   );

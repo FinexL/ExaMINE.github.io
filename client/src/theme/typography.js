@@ -8,21 +8,19 @@ export const typography = {
     fontWeight: 500,
     textAlign: "left",
     color: grey[900],
-    
   },
   h1: {
-    marginTop: '10px',
+    marginTop: "10px",
     fontSize: "2.5rem",
     fontWeight: 700,
     textAlign: "center",
     color: grey[900],
   },
 
-
   h2: {
     fontSize: "2rem",
     fontWeight: 600,
-    color: grey[900],
+    color: "#16b9f9ff",
   },
 
   // Sub-section heading
@@ -64,8 +62,6 @@ export const typography = {
     lineHeight: 1.43,
     color: grey[700],
   },
-
-
 
   // Button text
   button: {

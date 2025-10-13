@@ -6,14 +6,14 @@ import { useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import ArchiveIcon from "@mui/icons-material/Archive";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function InputGradeToolbar({
   onAddClick,
   onSaveClick,
   onEditClick,
-  onDeleteClick,
+  onArchiveClick,
   saveDisabled = true,
   saveLabel = "Save Changes",
   quickFilter,
@@ -96,12 +96,12 @@ export default function InputGradeToolbar({
           </MenuItem>
           <MenuItem
             onClick={() => {
-              onDeleteClick();
+              onArchiveClick();
               handleClose();
             }}
           >
-            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-            Delete Exam
+            <ArchiveIcon fontSize="small" sx={{ mr: 1 }} />
+            Archive Exam
           </MenuItem>
         </Menu>
       </Box>

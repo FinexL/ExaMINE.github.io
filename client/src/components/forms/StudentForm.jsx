@@ -9,9 +9,9 @@ import {
   DialogActions,
   MenuItem,
 } from "@mui/material";
-import axios from "axios";
 import SuccessSnackbar from "../alerts/SuccessSnackbar";
 import ErrorSnackbar from "../alerts/ErrorSnackbar";
+import api from "../../api/axios";
 
 export default function StudentForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ export default function StudentForm({ open, onClose, onSuccess }) {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const res = await axios.get("http://localhost:5202/api/universities");
+        const res = await api.get("/universities");
         setUniversities(res.data);
       } catch (err) {
         console.error("Failed to load universities:", err);
@@ -48,11 +48,8 @@ export default function StudentForm({ open, onClose, onSuccess }) {
         (u) => u.university_id === formData.university_id
       );
       if (uni) {
-        // Map university.modes to array
-        if (uni.modes === "Onsite & Inhouse")
-          setAvailableModes(["Onsite", "Inhouse"]);
-        else setAvailableModes([uni.modes]);
-        setFormData((prev) => ({ ...prev, modes: "" })); // reset mode
+        setAvailableModes([uni.modes]);
+        setFormData((prev) => ({ ...prev, modes: "" }));
       }
     } else {
       setAvailableModes([]);
@@ -71,21 +68,25 @@ export default function StudentForm({ open, onClose, onSuccess }) {
     const missingFields = [];
     if (!formData.first_name.trim()) missingFields.push("First name");
     if (!formData.last_name.trim()) missingFields.push("Last name");
-    if (!formData.university_id) missingFields.push("University");
+    if (!formData.university_id) missingFields.push("School");
     if (!formData.modes) missingFields.push("Mode");
 
     if (missingFields.length > 0) {
       const message =
         missingFields.length === 1
           ? `${missingFields[0]} is required`
-          : `${missingFields.slice(0, -1).join(", ")} and ${missingFields.slice(-1)} are required`;
+          : `${missingFields.slice(0, -1).join(", ")} and ${missingFields.slice(
+              -1
+            )} are required`;
       setSnackbarMessage(message);
       setErrorSnackbarOpen(true);
       return;
     }
 
     try {
-      await axios.post("http://localhost:5202/api/students", formData);
+      await api.post("/students", formData, {
+        withCredentials: true,
+      });
       setSnackbarMessage("Student added successfully!");
       setSuccessSnackbarOpen(true);
       onSuccess();
@@ -158,7 +159,7 @@ export default function StudentForm({ open, onClose, onSuccess }) {
               fullWidth
               required
               name="university_id"
-              label="University"
+              label="School"
               margin="normal"
               value={formData.university_id}
               onChange={handleChange}

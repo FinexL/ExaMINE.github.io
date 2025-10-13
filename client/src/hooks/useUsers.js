@@ -1,65 +1,56 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from "../api/axios";
 
-const useUsers = () => {
-  const [rows, setRows] = useState([]);
+export default function useUsers() {
+  const [users, setUsers] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axios.get("http://localhost:5202/api/users");
-      setRows(res.data);
-    } catch (err) {
-      console.error("Failed to fetch users:", err);
-      setError("Failed to load user data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const saveUser = async (user) => {
-    try {
-      if (user.isNew) {
-        const res = await axios.post("http://localhost:5202/api/users", user);
-        return res.data;
-      } else {
-        await axios.put(
-          `http://localhost:5202/api/users/${user.user_id}`,
-          user
-        );
-        return user;
-      }
-    } catch (err) {
-      console.error("Failed to save user:", err);
-      throw err;
-    }
-  };
-
-  const deleteUser = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5202/api/users/${id}`);
-      setRows((prev) => prev.filter((row) => row.user_id !== id));
-    } catch (err) {
-      console.error("Failed to delete user:", err);
-    }
-  };
-
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+
+        // ✅ Get current user profile
+        const profileRes = await api.get("/users/profile", { withCredentials: true });
+        const userProfile = profileRes.data;
+        
+        setProfile(userProfile);
+
+        // ✅ Only admins can view all users
+        if (userProfile.user_role === "Admin") {
+          const res = await api.get("/users", { withCredentials: true });
+          const normalized = res.data.map((u) => ({
+            user_id: u.user_id,
+            username: u.user_name,
+            email: u.user_email,
+            role: u.user_role,
+            status: u.user_status,
+          }));
+
+          setUsers(normalized);
+        } else {
+          // Non-admin users only see their own account
+          setUsers([{
+            user_id: userProfile.user_id,
+            username: userProfile.user_name,
+            email: userProfile.user_email,
+            role: userProfile.user_role,
+            status: userProfile.user_status,
+          }]);
+        }
+
+      } catch (err) {
+        console.error("Error fetching users:", err.response || err);
+        setError(err.response?.data?.message || "Failed to fetch users");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUsers();
   }, []);
 
-  return {
-    rows,
-    loading,
-    error,
-    fetchUsers,
-    saveUser,
-    deleteUser,
-    setRows,
-  };
-};
-
-export default useUsers;
+  return { users, setUsers, profile, loading, error };
+}

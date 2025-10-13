@@ -1,29 +1,21 @@
-// src/hooks/useStudentGrades.js
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
-/**
- * Build table rows combining students, subjects, and grades.
- * Each row represents one student with their grades in each subject.
- */
 const buildRows = (students, subjects, grades) => {
   const gradeMap = new Map();
-  // Map grades by student_id + score_id for fast lookup
-  grades.forEach(g => gradeMap.set(`${g.student_id}_${g.score_id}`, g));
+  grades.forEach((g) => gradeMap.set(`${g.student_id}_${g.score_id}`, g));
 
-  return students.map(s => {
+  return students.map((s) => {
     const row = {
       id: s.student_id,
+      student_id: s.student_id,
       studentName: `${s.last_name}, ${s.first_name} ${s.middle_name ?? ""} ${s.suffix ?? ""}`.trim(),
+      university_name: s.university_name,
     };
 
-    // Add one column per subject
-    subjects.forEach(subj => {
+    subjects.forEach((subj) => {
       const g = gradeMap.get(`${s.student_id}_${subj.score_id}`);
-      // ⚠️ Using subject_name as field key assumes it's unique
-      // Consider using `score_${subj.score_id}` to avoid collisions
-      row[subj.subject_name] = g ? g.score : "";
-      row[`_score_id_${subj.subject_name}`] = subj.score_id; // store score_id for saving later
+      row[`score_${subj.score_id}`] = g ? g.score : "";
     });
 
     return row;
@@ -34,21 +26,19 @@ const buildRows = (students, subjects, grades) => {
  * Build table columns based on subjects.
  */
 const buildColumns = (subjects) => {
-  const cols = [{ field: "studentName", headerName: "Student Name", width: 250 }];
-  const addedSubjects = new Set();
+  const cols = [
+    { field: "studentName", headerName: "Student Name", width: 250 },
+    { field: "university_name", headerName: "School", width: 300 },
+  ];
 
-  subjects.forEach(sub => {
-    if (!addedSubjects.has(sub.subject_name)) {
-      cols.push({
-        // ⚠️ same as above: better use field: `score_${sub.score_id}`
-        field: sub.subject_name,
-        headerName: `${sub.subject_name} (${sub.items ?? ""})`,
-        width: 150,
-        editable: true,
-        type: "number",
-      });
-      addedSubjects.add(sub.subject_name);
-    }
+  subjects.forEach((subj) => {
+    cols.push({
+      field: `score_${subj.score_id}`, // ✅ match the field used in the grid
+      headerName: `${subj.subject_name} (${subj.items ?? ""})`,
+      width: 150,
+      editable: true,
+      type: "number",
+    });
   });
 
   return cols;
@@ -71,7 +61,7 @@ const useStudentGrades = (mode, universityId = null) => {
    */
   const saveGrades = async (grades) => {
     try {
-      const res = await axios.post(`http://localhost:5202/api/student_grades/bulk`, grades);
+      const res = await api.post(`/student_grades/bulk`, grades);
       return res.data;
     } catch (err) {
       console.error("Error saving grades:", err);
@@ -90,35 +80,32 @@ const useStudentGrades = (mode, universityId = null) => {
 
     let url = "";
     if (mode.toLowerCase() === "onsite") {
-      url = `http://localhost:5202/api/student_grades/table_by_mode/onsite`;
+      url = `/student_grades/table_by_mode/onsite`;
     } else if (mode.toLowerCase() === "inhouse") {
       if (!universityId) {
         console.warn("University ID is required for Inhouse students");
-        setError("University ID is required for inhouse mode"); // ⚠️ optional: show error in UI
+        setError("University ID is required for inhouse mode");
         setLoading(false);
         return;
       }
-      url = `http://localhost:5202/api/student_grades/table_by_mode/inhouse?universityId=${universityId}`;
+      url = `/student_grades/table_by_mode/inhouse?universityId=${universityId}`;
     }
 
-    axios
+    api
       .get(url)
-      .then(res => {
+      .then((res) => {
         const { students = [], subjects = [], grades = [] } = res.data;
         setRaw({ students, subjects, grades });
         setColumns(buildColumns(subjects));
         setRows(buildRows(students, subjects, grades));
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch grade table:", err);
         setError(err.response?.data?.error || err.message || "Failed");
       })
       .finally(() => setLoading(false));
   }, [mode, universityId]);
 
-  /**
-   * Fetch data when mode/universityId changes
-   */
   useEffect(() => {
     fetchData();
   }, [fetchData]);

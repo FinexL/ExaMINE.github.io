@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 const useStudents = () => {
   const [rows, setRows] = useState([]);
@@ -10,7 +10,7 @@ const useStudents = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("http://localhost:5202/api/students");
+      const res = await api.get("/students");
       setRows(res.data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -22,16 +22,16 @@ const useStudents = () => {
 
   const saveStudent = async (student) => {
     if (!student.student_id || student.isNew) {
-      const res = await axios.post("http://localhost:5202/api/students", student);
+      const res = await api.post("/students", student,{ withCredentials: true });
       return res.data;
     } else {
-      await axios.put(`http://localhost:5202/api/students/${student.student_id}`, student);
+      await api.put(`/students/${student.student_id}`, student);
       return student;
     }
   };
 
   const deleteStudent = async (id) => {
-    await axios.delete(`http://localhost:5202/api/students/${id}`);
+    await api.delete(`/students/${id}`);
     setRows((prev) => prev.filter((row) => row.student_id !== id));
   };
 

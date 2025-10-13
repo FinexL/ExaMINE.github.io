@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 const useUniversities = () => {
   const [rows, setRows] = useState([]);
@@ -10,7 +10,7 @@ const useUniversities = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("http://localhost:5202/api/universities");
+      const res = await api.get("/universities");
       setRows(res.data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -31,12 +31,12 @@ const useUniversities = () => {
     });
 
     if (!row.university_id || row.isNew) {
-      const res = await axios.post("http://localhost:5202/api/universities", cleanRow);
+      const res = await api.post("/universities", cleanRow, { withCredentials: true });
       setRows((prev) => [...prev, { ...res.data, ...cleanRow }]);
       return res.data;
     } else {
-      await axios.put(
-        `http://localhost:5202/api/universities/${row.university_id}`,
+      await api.put(
+        `/universities/${row.university_id}`,
         cleanRow
       );
       setRows((prev) =>
@@ -57,7 +57,7 @@ const useUniversities = () => {
 
   const deleteUniversity = async (id) => {
     try {
-      await axios.delete(`http://localhost:5202/api/universities/${id}`);
+      await api.delete(`/universities/${id}`);
       setRows((prev) => prev.filter((r) => r.university_id !== id));
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Failed to delete university.";

@@ -1,8 +1,8 @@
 //This change design of the table
 import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import ManagementToolbar from "../../buttons/ManagementToolbar";
-import ExportButtons from "../../buttons/ExportButton";
+import ManagementToolbar from "../../../pages/management/toolbar/ManagementToolbar";
+import MuiExportButtons from "../../buttons/MuiExportButton";
 
 export default function BaseDataGrid({
   rows,
@@ -54,7 +54,7 @@ export default function BaseDataGrid({
               <ManagementToolbar
                 onAddClick={onAddClick}
                 addLabel={toolbarButtonLabel}
-                exportButton={<ExportButtons tableName={tableName} />}
+                exportButton={<MuiExportButtons tableName={tableName} />}
               />
             ),
           }}

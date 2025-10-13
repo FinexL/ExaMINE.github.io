@@ -1,10 +1,12 @@
 const mysql = require("mysql2");
+require("dotenv").config();
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "Capstone2025",
-  database: "examine_db"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 });
 
 db.connect((err) => {
@@ -15,7 +17,7 @@ db.connect((err) => {
 
   console.log("Connected to MySQL");
 
-  // PHilippine time zone
+  
   db.query("SET time_zone = '+08:00'", (err) => {
     if (err) console.error("Failed to set time zone:", err);
     else console.log("MySQL time zone set to +08:00");

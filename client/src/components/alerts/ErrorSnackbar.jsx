@@ -1,36 +1,13 @@
-import { Snackbar, IconButton, SnackbarContent } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+// ErrorSnackbar.jsx
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import BaseSnackbar from "./BaseSnackbar";
 
-const ErrorSnackbar = ({ open, message, onClose, duration = 6000 }) => {
-  return (
-    <Snackbar
-      open={open}
-      autoHideDuration={duration}
-      onClose={onClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-    >
-      <SnackbarContent
-        sx={{
-          backgroundColor: "#DC2626",
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-        }}
-        message={
-          <span style={{ display: "flex", alignItems: "center" }}>
-            <WarningAmberIcon sx={{ marginRight: 1 }} />
-            {message}
-          </span>
-        }
-        action={
-          <IconButton size="small" color="inherit" onClick={onClose}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
-    </Snackbar>
-  );
-};
+const ErrorSnackbar = (props) => (
+  <BaseSnackbar
+    {...props}
+    icon={<WarningAmberIcon sx={{ mr: 1 }} />}
+    backgroundColor="error.main"
+  />
+);
 
 export default ErrorSnackbar;

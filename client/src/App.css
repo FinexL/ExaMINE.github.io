@@ -1,3 +1,14 @@
 body{
     margin: 0;
 }
+
+.ag-theme-quartz .exceed-limit {
+  background-color: #ffcccc !important; 
+  color: #b00000; 
+  font-weight: bold;
+}
+.ag-theme-quartz .below-zero {
+  background-color: #ffcccc !important; 
+  color: #b00000; 
+  font-weight: bold;
+}

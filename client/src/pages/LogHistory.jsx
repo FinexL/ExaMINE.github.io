@@ -1,4 +1,4 @@
-import ContentBox from "../components/ContentBox";
+import ContentBox from "../components/layout/ContentBox";
 import { Typography } from "@mui/material";
 
 function LogHistory() {

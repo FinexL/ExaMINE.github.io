@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import React, { forwardRef } from "react";
 import {
   QuickFilter,
   QuickFilterControl,
@@ -10,10 +10,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Button, InputBase } from "@mui/material";
 
-function TextInput(props) {
+// Wrap TextInput in forwardRef
+const TextInput = forwardRef((props, ref) => {
   return (
     <InputBase
       {...props}
+      inputRef={ref} // attach the ref here
       sx={{
         height: "36px",
         width: "100%",
@@ -31,7 +33,7 @@ function TextInput(props) {
       }}
     />
   );
-}
+});
 
 export default function SearchBarButtons() {
   return (
@@ -73,6 +75,7 @@ export default function SearchBarButtons() {
                 <TextInput
                   {...controlProps}
                   {...slotProps?.htmlInput}
+                  ref={slotProps?.ref} // forward the ref
                   sx={{
                     borderTopLeftRadius: 0,
                     borderBottomLeftRadius: 0,

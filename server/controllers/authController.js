@@ -1,86 +1,51 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const db = require("../config/db");
-const { generateAccessToken, generateRefreshToken } = require("../utils/token");
+const { generateAccessToken } = require("../utils/token");
+const { comparePassword } = require("../utils/hash");
 
-exports.login = (req, res) => {
+// Login
+exports.login = async (req, res) => {
   const { username, password } = req.body;
 
   db.query(
     "SELECT * FROM users WHERE user_name = ? AND user_status = 'Active'",
     [username],
-    (err, rows) => {
+    async (err, rows) => {
       if (err) return res.status(500).json({ message: "Database error", error: err.message });
-      if (rows.length === 0) return res.status(400).json("Invalid username or password");
+      if (rows.length === 0) return res.status(400).json({ message: "Invalid username or password" });
 
       const user = rows[0];
+      const validPassword = await comparePassword(password, user.user_password);
+      if (!validPassword) return res.status(400).json({ message: "Invalid username or password" });
 
-      bcrypt.compare(password, user.user_password, (err, validPassword) => {
-        if (err) return res.status(500).json("Password check failed");
-        if (!validPassword) return res.status(400).json("Invalid username or password");
+      // ✅ generate 2-day access token
+      const accessToken = generateAccessToken(user); 
 
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
+      // ✅ set HttpOnly cookie
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false, // set true if HTTPS
+        sameSite: "Lax",
+        maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
+      });
 
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
+      // ✅ track login + last activity
+      db.query(
+        "UPDATE users SET last_login = NOW(), last_activity = NOW() WHERE user_id = ?",
+        [user.user_id]
+      );
 
-        db.query(
-          "INSERT INTO refresh_tokens (user_id, token, expiry) VALUES (?, ?, ?)",
-          [user.user_id, refreshToken, expiryDate]
-        );
-
-        db.query("UPDATE users SET last_login = NOW() WHERE user_id = ?", [user.user_id]);
-
-        res.json({
-          id: user.user_id,
-          username: user.user_name,
-          role: user.user_role,
-          accessToken,
-          refreshToken,
-        });
+      // return basic user info (not password)
+      res.json({
+        id: user.user_id,
+        username: user.user_name,
+        role: user.user_role,
       });
     }
   );
 };
 
-exports.refresh = (req, res) => {
-  const refreshToken = req.body.token;
-  if (!refreshToken) return res.status(401).json("No refresh token provided");
-
-  db.query(
-    "SELECT * FROM refresh_tokens WHERE token = ? AND expiry > NOW()",
-    [refreshToken],
-    (err, rows) => {
-      if (err) return res.status(500).json("Database error");
-      if (rows.length === 0) return res.status(403).json("Invalid refresh token");
-
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(403).json("Invalid refresh token");
-
-        db.query("DELETE FROM refresh_tokens WHERE token = ?", [refreshToken]);
-
-        const newAccessToken = generateAccessToken(user);
-        const newRefreshToken = generateRefreshToken(user);
-
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
-
-        db.query(
-          "INSERT INTO refresh_tokens (user_id, token, expiry) VALUES (?, ?, ?)",
-          [user.id, newRefreshToken, expiryDate]
-        );
-
-        res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-      });
-    }
-  );
-};
-
+// Logout
 exports.logout = (req, res) => {
-  const refreshToken = req.body.token;
-  db.query("DELETE FROM refresh_tokens WHERE token = ?", [refreshToken], (err) => {
-    if (err) return res.status(500).json("Error logging out");
-    res.json("Logged out successfully");
-  });
+  res.clearCookie("accessToken");
+  res.json({ message: "Logged out successfully" });
 };

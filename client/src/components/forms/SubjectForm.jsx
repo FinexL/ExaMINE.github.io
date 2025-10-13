@@ -8,63 +8,80 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import axios from "axios";
+import api from "../../api/axios";
+import useSnackbar from "../../hooks/useSnackbar";
 import SuccessSnackbar from "../alerts/SuccessSnackbar";
 import ErrorSnackbar from "../alerts/ErrorSnackbar";
 
 export default function SubjectForm({ open, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     subject_name: "",
-    subject_code: "",
+  });
+  const [restoreDialog, setRestoreDialog] = useState({
+    open: false,
+    message: "",
+    subject_id: null,
   });
 
-  const [SuccessSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
-  const [ErrorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const successSnackbar = useSnackbar();
+  const errorSnackbar = useSnackbar();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let missingFields = [];
-    if (!formData.subject_name.trim()) missingFields.push("Subject name");
-
-    if (missingFields.length > 0) {
-      const message =
-        missingFields.length === 1
-          ? `${missingFields[0]} is required`
-          : `${missingFields.slice(0, -1).join(", ")} and ${
-              missingFields[missingFields.length - 1]
-            } are required`;
-
-      setSnackbarMessage(message);
-      setErrorSnackbarOpen(true);
+    if (!formData.subject_name.trim()) {
+      errorSnackbar.show("Subject name is required.");
       return;
     }
-
     try {
-      await axios.post("http://localhost:5202/api/subjects", {
-        ...formData,
-      });
-      setSnackbarMessage("Subject added successfully!");
-      setSuccessSnackbarOpen(true);
-      onSuccess();
-      onClose();
-      setFormData({
-        subject_name: "",
-        subject_code: "",
-      });
+      await api.post("/subjects", formData, { withCredentials: true });
+      successSnackbar.show("Subject added successfully!");
+      onSuccess?.();
+      onClose?.();
+      setFormData({ subject_name: "" });
     } catch (err) {
-      setSnackbarMessage("Failed to create subject.");
-      setErrorSnackbarOpen(true);
+      const data = err.response?.data;
+
+      if (data?.error === "DUPLICATE") {
+        errorSnackbar.show(
+          "Subject name already exists. Please use a different name."
+        );
+      } else if (data?.error === "ARCHIVED_EXISTS") {
+        // Show restore dialog
+        setRestoreDialog({
+          open: true,
+          message: data.message,
+          subject_id: data.subject_id,
+        });
+      } else {
+        errorSnackbar.show("Failed to create subject.");
+      }
+
       console.error("Subject creation failed:", err);
+    }
+  };
+  const handleCancelRestore = () => {
+    setRestoreDialog({ open: false, message: "", subject_id: null });
+  };
+
+  const handleRestore = async () => {
+    try {
+      await api.patch(`/subjects/${restoreDialog.subject_id}/restore`, null, {
+        withCredentials: true,
+      });
+      successSnackbar.show("Subject restored successfully!");
+      onSuccess?.();
+      handleCancelRestore();
+      onClose?.();
+      setFormData({ subject_name: "" });
+    } catch (err) {
+      errorSnackbar.show("Failed to restore subject.");
+      console.error("Restore failed:", err);
     }
   };
 
@@ -83,14 +100,6 @@ export default function SubjectForm({ open, onClose, onSuccess }) {
               value={formData.subject_name}
               onChange={handleChange}
             />
-            <TextField
-              fullWidth
-              name="subject_code"
-              label="Subject Code"
-              margin="normal"
-              value={formData.subject_code}
-              onChange={handleChange}
-            />
           </Box>
         </DialogContent>
         <DialogActions>
@@ -101,15 +110,28 @@ export default function SubjectForm({ open, onClose, onSuccess }) {
         </DialogActions>
       </Dialog>
 
+      <Dialog open={restoreDialog.open} onClose={handleCancelRestore}>
+        <DialogTitle>Restore Subject?</DialogTitle>
+        <DialogContent>{restoreDialog.message}</DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelRestore} color="secondary">
+            No
+          </Button>
+          <Button onClick={handleRestore} color="primary" variant="contained">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <SuccessSnackbar
-        open={SuccessSnackbarOpen}
-        message={snackbarMessage}
-        onClose={() => setSuccessSnackbarOpen(false)}
+        open={successSnackbar.open}
+        message={successSnackbar.message}
+        onClose={successSnackbar.close}
       />
       <ErrorSnackbar
-        open={ErrorSnackbarOpen}
-        message={snackbarMessage}
-        onClose={() => setErrorSnackbarOpen(false)}
+        open={errorSnackbar.open}
+        message={errorSnackbar.message}
+        onClose={errorSnackbar.close}
       />
     </>
   );

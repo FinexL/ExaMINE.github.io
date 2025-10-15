@@ -1,62 +1,79 @@
-import { useState, Children } from "react";
-import { Box, Tabs, Tab } from "@mui/material";
+import { Children, useMemo } from "react";
+import { Box, Tabs, Tab, Paper } from "@mui/material";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-function NavTabs({ tabs, children }) {
-  const [value, setValue] = useState(0);
+export default function NavTabs({
+  tabs,
+  children,
+  basePath,
+  routeParam = "tab",
+  values = [],
+}) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const selectedIndex = useMemo(() => {
+    const param = searchParams.get(routeParam);
+    if (!param) return 0;
+    return values.findIndex((v) => String(v) === String(param)) || 0;
+  }, [searchParams, routeParam, values]);
+
+  const handleChange = (_, newIndex) => {
+    const v = values[newIndex];
+    const path = basePath;
+    navigate(v ? `${path}?${routeParam}=${encodeURIComponent(v)}` : path, {
+      replace: false,
+    });
   };
 
   return (
-    <Box
+    <Paper
+      elevation={3}
       sx={{
-        flexGrow: 1,
-        bgcolor: "background.paper",
+        py: 2,
+        borderRadius: 3,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        overflow: "hidden",
-        borderRadius: 4,
+        width: "100%",
       }}
     >
+      {/* Tab Header */}
       <Tabs
-        orientation="horizontal"
-        variant="scrollable"
-        value={value}
+        value={selectedIndex}
         onChange={handleChange}
+        variant="scrollable"
+        scrollButtons="auto"
         sx={{
-          backgroundColor: "rgba(76, 168, 228, 0.34)",
-          px: 2,
+          px: 1.5,
+          "& .MuiTabs-indicator": { display: "none" },
+          "& .MuiTab-root": {
+            textTransform: "none",
+            fontWeight: 600,
+            borderRadius: 2,
+            mx: 0.5,
+            px: 2.5,
+            py: 1,
+            transition: "all 0.25s ease",
+            color: "text.secondary",
+            "&:hover": { bgcolor: "action.hover", color: "primary.main" },
+            "&.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "secondary.main",
+              boxShadow: "0 2px 6px rgba(25,118,210,0.25)",
+            },
+          },
         }}
       >
-        {tabs.map((tabLabel, index) => (
-          <Tab
-            label={tabLabel}
-            key={index}
-            sx={{
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-              borderBottom: value === index ? "none" : "1px solid",
-              borderColor: "divider",
-              bgcolor: value === index ? "background.paper" : "primary.main",
-              color: value === index ? "text.primary" : "white",
-              mx: 0.5,
-              textTransform: "none",
-              boxShadow: value === index ? 2 : "none",
-              zIndex: value === index ? 1 : 0,
-            }}
-          />
+        {tabs.map((label, i) => (
+          <Tab key={i} label={label} />
         ))}
       </Tabs>
 
-      <Box sx={{ flexGrow: 1, p: 2, overflow: "auto" }}>
-        {Children.map(children, (child, index) =>
-          index === value ? <Box>{child}</Box> : null
-        )}
+      {/* Content */}
+      <Box sx={{ p: 3, flexGrow: 1 }}>
+        {Children.toArray(children)[selectedIndex]}
       </Box>
-    </Box>
+    </Paper>
   );
 }
-
-export default NavTabs;

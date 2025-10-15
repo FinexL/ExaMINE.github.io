@@ -1,8 +1,6 @@
 import { Typography, Box } from "@mui/material";
 import NavTabs from "../../components/layout/NavTabs";
 
-import ContentBox from "../../components/layout/ContentBox";
-
 import useUniversities from "../../hooks/useUniversities";
 import OnsiteTable from "./tables/OnsiteTable";
 import InhouseTable from "./tables/InhouseTable";
@@ -12,11 +10,17 @@ function InputGrades() {
   const inhouseUniversities = universities.filter((u) => u.modes === "Inhouse");
 
   const tabs = ["Onsite", ...inhouseUniversities.map((u) => u.university_name)];
+  const values = [null, ...inhouseUniversities.map((u) => u.university_id)];
 
   return (
     <>
-      <ContentBox>
-        <NavTabs tabs={tabs}>
+      <>
+        <NavTabs
+          tabs={tabs}
+          values={values}
+          basePath="/input-grades"
+          routeParam="uni"
+        >
           <OnsiteTable />
 
           {inhouseUniversities.map((u) => (
@@ -25,7 +29,7 @@ function InputGrades() {
             </Box>
           ))}
         </NavTabs>
-      </ContentBox>
+      </>
     </>
   );
 }

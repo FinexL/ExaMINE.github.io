@@ -9,7 +9,9 @@ const buildRows = (students, subjects, grades) => {
     const row = {
       id: s.student_id,
       student_id: s.student_id,
-      studentName: `${s.last_name}, ${s.first_name} ${s.middle_name ?? ""} ${s.suffix ?? ""}`.trim(),
+      studentName: `${s.last_name}, ${s.first_name} ${s.middle_name ?? ""} ${
+        s.suffix ?? ""
+      }`.trim(),
       university_name: s.university_name,
     };
 
@@ -33,7 +35,7 @@ const buildColumns = (subjects) => {
 
   subjects.forEach((subj) => {
     cols.push({
-      field: `score_${subj.score_id}`, // ✅ match the field used in the grid
+      field: `score_${subj.score_id}`,
       headerName: `${subj.subject_name} (${subj.items ?? ""})`,
       width: 150,
       editable: true,
@@ -110,7 +112,16 @@ const useStudentGrades = (mode, universityId = null) => {
     fetchData();
   }, [fetchData]);
 
-  return { loading, error, rows, setRows, columns, raw, refetch: fetchData, saveGrades };
+  return {
+    loading,
+    error,
+    rows,
+    setRows,
+    columns,
+    raw,
+    refetch: fetchData,
+    saveGrades,
+  };
 };
 
 export default useStudentGrades;

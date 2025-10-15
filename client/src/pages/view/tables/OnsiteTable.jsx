@@ -26,7 +26,7 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
   return (
     <VerticalTabs tabs={examTypes}>
       {examTypes.map((examType) => {
-        // ✅ Filter subjects for this exam type
+        // Filter subjects for this exam type
         const filteredSubjects = useMemo(
           () =>
             (studentGrades.raw.subjects || []).filter(
@@ -37,7 +37,7 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
 
         const rows = studentGrades.rows;
 
-        // ✅ Build columns using score_id-based keys
+        //  Build columns using score_id-based keys
         const columnDefs = useMemo(
           () => [
             {
@@ -66,7 +66,7 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
               pinned: "left",
               lockPosition: true,
             },
-            // ✅ Use score_${score_id} for field mapping
+            //
             ...filteredSubjects.map((subj) => ({
               field: `score_${subj.score_id}`,
               headerName: `${subj.subject_name} (${subj.items ?? ""})`,
@@ -89,7 +89,7 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
             gap={2}
             height="100%"
           >
-            {/* ✅ AG Grid with updated score fields */}
+            {/* AG Grid with updated score fields */}
             <AgBaseGrid
               rowData={rows}
               columnDefs={columnDefs}
@@ -100,7 +100,7 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
               onExportClick={() => setExportOpen(true)}
             />
 
-            {/* ✅ Updated Export Form */}
+            {/* Updated Export Form */}
             <ExportForm
               open={exportOpen}
               onClose={() => setExportOpen(false)}

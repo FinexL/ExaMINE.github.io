@@ -2,7 +2,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Box, Typography, Divider } from "@mui/material";
 
-import ContentBox from "../../components/layout/ContentBox";
 import SeasonIndicator from "../../components/indicators/SeasonIndicator";
 import ModeChart from "./ModeChart";
 import UniversityChart from "./UniversityChart";
@@ -125,7 +124,7 @@ export default function Dashboard() {
 
   // Render
   return (
-    <ContentBox>
+    <>
       <Box sx={{ bgcolor: "white" }}>
         {/* --- Charts and Tables Layout --- */}
 
@@ -216,6 +215,6 @@ export default function Dashboard() {
           )}
         </Box>
       </Box>
-    </ContentBox>
+    </>
   );
 }

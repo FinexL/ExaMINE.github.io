@@ -67,7 +67,7 @@ export default function ArchiveExamForm({
   // Step 3: confirm archive
   const handleConfirmArchive = async () => {
     try {
-      await archive("subject_scores", [selectedExam.score_id]); // ✅ use archive hook
+      await archive("subject_scores", [selectedExam.score_id]);
       successSnackbar.show("Exam archived successfully!");
       onSuccess?.();
       onClose?.();

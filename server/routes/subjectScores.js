@@ -32,7 +32,6 @@ router.get("/", (req, res) => {
     values.push(university_id);
   }
 
-  // ✅ fix: append with AND instead of another WHERE
   if (conditions.length > 0) {
     query += " AND " + conditions.join(" AND ");
   }
@@ -45,7 +44,6 @@ router.get("/", (req, res) => {
   });
 });
 
-// ✅ GET scores by mode & exam_type
 router.get("/by-mode-exam", (req, res) => {
   const { mode, exam_type } = req.query;
 
@@ -70,7 +68,6 @@ router.get("/by-mode-exam", (req, res) => {
   });
 });
 
-// ✅ GET scores by examType
 router.get("/:examType", (req, res) => {
   const { mode, university_id } = req.query;
   const examType = req.params.examType;
@@ -110,7 +107,6 @@ router.get("/:examType", (req, res) => {
   });
 });
 
-// ✅ POST new subject score (with restore if archived)
 router.post("/", (req, res) => {
   const { subject_id, university_id, exam_type, mode, items, exam_date } =
     req.body;
@@ -185,7 +181,6 @@ router.post("/", (req, res) => {
   );
 });
 
-// ✅ DELETE
 router.delete("/:id", (req, res) => {
   const score_id = req.params.id;
   const query = "DELETE FROM subject_scores WHERE score_id = ?";
@@ -195,8 +190,7 @@ router.delete("/:id", (req, res) => {
   });
 });
 
-// ✅ UPDATE
-router.put("/:id", (req, res) => {
+-router.put("/:id", (req, res) => {
   const score_id = req.params.id;
   const { items } = req.body;
 

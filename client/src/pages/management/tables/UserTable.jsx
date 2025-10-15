@@ -33,21 +33,21 @@ const UserTable = () => {
     fetchCurrentUser();
   }, []);
 
-  // ✅ Handle Add User
+  // Handle Add User
   const handleAddClick = () => {
     setEditingUser(null);
     setIsAddMode(true);
     setFormOpen(true);
   };
 
-  // ✅ Handle Edit User
+  // Handle Edit User
   const handleEditClick = (user) => {
     setEditingUser(user);
     setIsAddMode(false);
     setFormOpen(true);
   };
 
-  // ✅ Refresh list after Add/Edit
+  // Refresh list after Add/Edit
   const handleFormSuccess = async () => {
     try {
       const res = await api.get("/users", { withCredentials: true });
@@ -64,7 +64,7 @@ const UserTable = () => {
     }
   };
 
-  // ✅ Handle Status Toggle (Active/Inactive)
+  // Handle Status Toggle (Active/Inactive)
   const handleStatusChange = (userId, newStatus) => {
     setUsers((prev) =>
       prev.map((u) => (u.user_id === userId ? { ...u, status: newStatus } : u))
@@ -73,7 +73,7 @@ const UserTable = () => {
 
   return (
     <Box>
-      {/* ✅ Conditional Form Rendering */}
+      {/* Conditional Form Rendering */}
       {isAddMode ? (
         <AddUserForm
           open={formOpen}
@@ -89,12 +89,12 @@ const UserTable = () => {
         />
       )}
 
-      {/* ✅ Add Button (Right-aligned) */}
+      {/* Add Button (Right-aligned) */}
       <Box mb={2} display="flex" justifyContent="flex-end">
         <AddButton onClick={handleAddClick} label="Add User" />
       </Box>
 
-      {/* ✅ User Cards */}
+      {/* User Cards */}
       {currentUser && users.length > 0 ? (
         <Box display="flex" flexWrap="wrap" gap={2}>
           {users.map((user) => (

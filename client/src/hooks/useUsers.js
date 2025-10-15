@@ -12,13 +12,15 @@ export default function useUsers() {
       try {
         setLoading(true);
 
-        // ✅ Get current user profile
-        const profileRes = await api.get("/users/profile", { withCredentials: true });
+        // Fetch user profile first
+        const profileRes = await api.get("/users/profile", {
+          withCredentials: true,
+        });
         const userProfile = profileRes.data;
-        
+
         setProfile(userProfile);
 
-        // ✅ Only admins can view all users
+        // Only admins can view all users
         if (userProfile.user_role === "Admin") {
           const res = await api.get("/users", { withCredentials: true });
           const normalized = res.data.map((u) => ({
@@ -32,15 +34,16 @@ export default function useUsers() {
           setUsers(normalized);
         } else {
           // Non-admin users only see their own account
-          setUsers([{
-            user_id: userProfile.user_id,
-            username: userProfile.user_name,
-            email: userProfile.user_email,
-            role: userProfile.user_role,
-            status: userProfile.user_status,
-          }]);
+          setUsers([
+            {
+              user_id: userProfile.user_id,
+              username: userProfile.user_name,
+              email: userProfile.user_email,
+              role: userProfile.user_role,
+              status: userProfile.user_status,
+            },
+          ]);
         }
-
       } catch (err) {
         console.error("Error fetching users:", err.response || err);
         setError(err.response?.data?.message || "Failed to fetch users");

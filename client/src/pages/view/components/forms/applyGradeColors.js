@@ -20,7 +20,7 @@ export const applyGradeColors = (
       const cell = row.getCell(col);
       const rawValue = cell.value ? cell.value.toString().trim() : "";
 
-      // ✅ If null, empty, or explicitly "NO EXAM" → blue
+      // If null, empty, or explicitly "NO EXAM" → blue
       if (!rawValue || rawValue.toUpperCase() === "NO EXAM") {
         cell.fill = {
           type: "pattern",

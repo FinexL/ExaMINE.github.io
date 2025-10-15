@@ -5,7 +5,7 @@ import VerticalTabs from "../../../components/layout/VerticalTabs";
 import useStudentGrades from "../../../hooks/useStudentGrades";
 import AgBaseGrid from "../components/AgBaseGrid";
 import CriteriaForm from "../components/forms/CriteriaForm";
-import ExportForm from "../components/forms/ExportForm"; // ✅ import added
+import ExportForm from "../components/forms/ExportForm";
 import useGradeCriteria from "../../../hooks/useGradeCriteria";
 import { getExamTypes } from "../../../utils/examTypes";
 
@@ -15,7 +15,7 @@ export default function InhouseTable({ mode = "Inhouse", universityId }) {
   const { criteria, error } = useGradeCriteria(mode);
 
   const [criteriaValues, setCriteriaValues] = useState(criteria);
-  const [exportOpen, setExportOpen] = useState(false); // ✅ added
+  const [exportOpen, setExportOpen] = useState(false);
 
   useEffect(() => {
     setCriteriaValues(criteria);
@@ -88,7 +88,6 @@ export default function InhouseTable({ mode = "Inhouse", universityId }) {
             gap={2}
             height="100%"
           >
-            {/* ✅ AG Grid with export button */}
             <AgBaseGrid
               rowData={rows}
               columnDefs={columnDefs}
@@ -97,10 +96,9 @@ export default function InhouseTable({ mode = "Inhouse", universityId }) {
               criteriaValues={criteriaValues}
               examTerms={examTypes}
               readOnly={true}
-              onExportClick={() => setExportOpen(true)} // ✅ export trigger
+              onExportClick={() => setExportOpen(true)}
             />
 
-            {/* ✅ Export Form */}
             <ExportForm
               open={exportOpen}
               onClose={() => setExportOpen(false)}

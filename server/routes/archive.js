@@ -22,7 +22,6 @@ const primaryKeys = {
 
 const validateTable = (table) => allowedTables.includes(table);
 
-// =================== GET archived rows ===================
 router.get("/:table", (req, res) => {
   const { table } = req.params;
   if (!validateTable(table))
@@ -99,7 +98,6 @@ router.get("/:table", (req, res) => {
   });
 });
 
-// =================== POST archive ===================
 router.post("/:table/archive", authenticateToken, (req, res) => {
   console.log("Archive route hit!");
 
@@ -114,7 +112,6 @@ router.post("/:table/archive", authenticateToken, (req, res) => {
   const idColumn = primaryKeys[table];
 
   if (table === "universities") {
-    // Block if active students exist
     const checkQuery = `
       SELECT university_id, COUNT(*) AS student_count
       FROM students
@@ -146,7 +143,6 @@ router.post("/:table/archive", authenticateToken, (req, res) => {
       );
     });
   } else if (table === "subjects") {
-    // ✅ Rule: can only archive subject if all linked subject_scores are archived OR their universities are archived
     const checkQuery = `
       SELECT ss.subject_id, ss.score_id, u.university_name
       FROM subject_scores ss
@@ -205,7 +201,6 @@ router.post("/:table/unarchive", authenticateToken, (req, res) => {
   const idColumn = primaryKeys[table];
 
   if (table === "subject_scores") {
-    // ✅ Rule: Block unarchive if subject OR university is archived
     const checkQuery = `
       SELECT ss.score_id, subj.subject_name, u.university_name, subj.is_archived AS subj_archived, u.is_archived AS uni_archived
       FROM subject_scores ss

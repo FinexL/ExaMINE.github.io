@@ -1,11 +1,10 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Nav from "./components/layout/Nav";
+import MainNav from "./components/layout/MainNav";
 import Management from "./pages/management/Management";
 import Dashboard from "./pages/dashboard/Dashboard";
 import InputGrades from "./pages/input/InputGrades";
 import ViewGrades from "./pages/view/ViewGrades";
-import LogHistory from "./pages/LogHistory";
 
 import StudentReport from "./pages/view/StudenReport";
 import Archive from "./pages/archive/Archive";
@@ -25,8 +24,6 @@ function App() {
     "/input-grades",
     "/view-grades",
     "/management",
-    "/log-history",
-
     "/archive",
   ];
 
@@ -34,7 +31,7 @@ function App() {
 
   return (
     <>
-      {showNav && <Nav />}
+      {showNav && <MainNav />}
 
       <Routes>
         <Route path="/" element={<Login />} />
@@ -72,15 +69,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Management />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/log-history"
-          element={
-            <ProtectedRoute>
-              <LogHistory />
             </ProtectedRoute>
           }
         />

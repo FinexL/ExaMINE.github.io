@@ -5,10 +5,12 @@ export default function ReportBox({ children, ...props }) {
   return (
     <Box
       sx={{
-        bgcolor: "rgba(76, 168, 228, 0.34)",
+        bgcolor: "primary.main",
+        color: "secondary.main",
         borderRadius: 2,
-        p: 1,
-        border: "1px solid #ccc",
+        p: 2,
+        border: 1,
+        borderColor: "divider",
         ...props.sx,
       }}
       {...props}

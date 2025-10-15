@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
   Avatar,
   Box,
-  CssBaseline,
   Divider,
   Drawer,
   IconButton,
@@ -18,19 +17,22 @@ import {
   Typography,
   Collapse,
 } from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import SettingsIcon from "@mui/icons-material/Settings";
+
 import SchoolIcon from "@mui/icons-material/School";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PeopleIcon from "@mui/icons-material/People";
-import SubjectIcon from "@mui/icons-material/Subject";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import GradeIcon from "@mui/icons-material/Grade";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import ViewListOutlinedIcon from "@mui/icons-material/ViewListOutlined";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
+
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
+import StarIcon from "@mui/icons-material/Star";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -56,8 +58,6 @@ function MainNav() {
     inhouseInput: false,
     inhouseView: false,
   });
-  const [anchorInhouseInput, setAnchorInhouseInput] = useState(null);
-  const [anchorInhouseView, setAnchorInhouseView] = useState(null);
 
   const { rows: universities } = useUniversities();
   const inhouseUniversities = universities.filter((u) => u.modes === "Inhouse");
@@ -78,6 +78,29 @@ function MainNav() {
     };
   }, []);
 
+  // Shift page content so the Drawer does not cover it
+  useEffect(() => {
+    document.body.style.marginLeft = `${
+      open ? drawerWidthOpen : drawerWidthClosed
+    }px`;
+    document.body.style.transition = "margin-left 250ms ease-in-out";
+    return () => {
+      document.body.style.marginLeft = "0px";
+      document.body.style.transition = "";
+    };
+  }, [open]);
+
+  // When collapsing the sidebar, also collapse Inhouse lists
+  useEffect(() => {
+    if (!open) {
+      setExpand((e) => ({
+        ...e,
+        inhouseInput: false,
+        inhouseView: false,
+      }));
+    }
+  }, [open]);
+
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
@@ -90,6 +113,18 @@ function MainNav() {
 
   const toggleDrawer = () => setOpen((v) => !v);
 
+  // When sidebar is collapsed, clicking a collapsible section should expand the drawer first
+  const handleSectionToggle = (sectionKey) => {
+    if (!open) {
+      setOpen(true);
+      setTimeout(() => {
+        setExpand((e) => ({ ...e, [sectionKey]: true }));
+      }, 150);
+    } else {
+      setExpand((e) => ({ ...e, [sectionKey]: !e[sectionKey] }));
+    }
+  };
+
   const MaybeTooltip = ({ title, children }) =>
     open ? (
       children
@@ -100,64 +135,33 @@ function MainNav() {
     );
 
   const NavParent = ({
-    icon,
     label,
     sectionKey,
-    defaultTo,
+
     children,
     collapsible = false,
   }) => (
     <>
-      <ListItem disablePadding sx={{ display: "block" }}>
-        <MaybeTooltip title={label}>
-          <ListItemButton
-            onClick={() => {
-              if (defaultTo) navigate(defaultTo);
-              if (collapsible) {
-                setExpand((e) => ({ ...e, [sectionKey]: !e[sectionKey] }));
-              }
-            }}
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-              color: "inherit",
-            }}
-          >
-            {!open && (
-              <ListItemIcon
+      {open && (
+        <ListItem disablePadding sx={{ display: "block", px: 2.5 }}>
+          <ListItemText
+            primary={
+              <Typography
                 sx={{
-                  minWidth: 0,
-                  mr: 0,
-                  ml: "auto",
-                  justifyContent: "center",
+                  fontSize: "0.75rem",
                   color: "inherit",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
-                {icon}
-              </ListItemIcon>
-            )}
-            {open && (
-              <ListItemText
-                primary={label}
-                sx={{ color: "inherit", minWidth: 0 }}
-                primaryTypographyProps={{
-                  sx: {
-                    fontSize: "0.75rem",
-                    color: "inherit",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  },
-                }}
-              />
-            )}
-            {open &&
-              collapsible &&
-              (expand[sectionKey] ? <ExpandLess /> : <ExpandMore />)}
-          </ListItemButton>
-        </MaybeTooltip>
-      </ListItem>
+                {label}
+              </Typography>
+            }
+            sx={{ color: "inherit", minWidth: 0 }}
+          />
+        </ListItem>
+      )}
       {collapsible ? (
         <Collapse in={expand[sectionKey] && open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
@@ -169,42 +173,9 @@ function MainNav() {
           {children}
         </List>
       )}
-      {open && <Divider sx={{ my: 1 }} />}
+      <Divider sx={{ my: 1, width: "90%", mx: "auto" }} />
     </>
   );
-
-  const StyledMenu = styled((props) => (
-    <Menu
-      elevation={0}
-      anchorOrigin={{ vertical: "center", horizontal: "right" }}
-      transformOrigin={{ vertical: "center", horizontal: "left" }}
-      keepMounted
-      {...props}
-    />
-  ))(({ theme }) => ({
-    "& .MuiPaper-root": {
-      borderRadius: 8,
-      marginLeft: theme.spacing(1),
-      minWidth: 220,
-      color: theme.palette.text.primary,
-      boxShadow:
-        "rgb(255 255 255 / 0%) 0 0 0 0, rgba(0,0,0,0.05) 0 0 0 1px, rgba(0,0,0,0.10) 0 10px 15px -3px, rgba(0,0,0,0.05) 0 4px 6px -2px",
-      "& .MuiMenu-list": { padding: 4 },
-      "& .MuiMenuItem-root": {
-        "& .MuiSvgIcon-root": {
-          fontSize: 18,
-          color: theme.palette.text.secondary,
-          marginRight: theme.spacing(1.5),
-        },
-        "&:active": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  }));
 
   const SubItem = ({ to, icon, label }) => (
     <MaybeTooltip title={label}>
@@ -219,6 +190,14 @@ function MainNav() {
           textAlign: open ? "left" : "center",
           "&.Mui-selected": { bgcolor: "rgba(255,255,255,0.16)" },
           "&.Mui-selected:hover": { bgcolor: "rgba(255,255,255,0.20)" },
+          transition: (theme) =>
+            theme.transitions.create(
+              ["padding-left", "background-color", "color"],
+              {
+                duration: theme.transitions.duration.shorter,
+                easing: theme.transitions.easing.easeInOut,
+              }
+            ),
         }}
       >
         <ListItemIcon
@@ -228,17 +207,23 @@ function MainNav() {
             ml: open ? 0 : "auto",
             justifyContent: "center",
             color: "inherit",
+            transition: (theme) =>
+              theme.transitions.create(["margin", "color"], {
+                duration: theme.transitions.duration.shorter,
+                easing: theme.transitions.easing.easeInOut,
+              }),
           }}
         >
           {icon}
         </ListItemIcon>
         {open && (
           <ListItemText
-            primary={label}
+            primary={
+              <Typography sx={{ fontSize: "0.75rem", color: "inherit" }}>
+                {label}
+              </Typography>
+            }
             sx={{ color: "inherit" }}
-            primaryTypographyProps={{
-              sx: { fontSize: "0.75rem", color: "inherit" },
-            }}
           />
         )}
       </ListItemButton>
@@ -249,9 +234,7 @@ function MainNav() {
     <ListItem disablePadding sx={{ display: "block" }}>
       <MaybeTooltip title={label}>
         <ListItemButton
-          onClick={() =>
-            setExpand((e) => ({ ...e, [sectionKey]: !e[sectionKey] }))
-          }
+          onClick={() => handleSectionToggle(sectionKey)}
           selected={
             (sectionKey === "inhouseInput" &&
               location.pathname === "/input-grades" &&
@@ -267,6 +250,14 @@ function MainNav() {
             textAlign: open ? "left" : "center",
             "&.Mui-selected": { bgcolor: "rgba(255,255,255,0.16)" },
             "&.Mui-selected:hover": { bgcolor: "rgba(255,255,255,0.20)" },
+            transition: (theme) =>
+              theme.transitions.create(
+                ["padding-left", "background-color", "color"],
+                {
+                  duration: theme.transitions.duration.shorter,
+                  easing: theme.transitions.easing.easeInOut,
+                }
+              ),
           }}
         >
           <ListItemIcon
@@ -276,17 +267,23 @@ function MainNav() {
               ml: open ? 0 : "auto",
               justifyContent: "center",
               color: "inherit",
+              transition: (theme) =>
+                theme.transitions.create(["margin", "color"], {
+                  duration: theme.transitions.duration.shorter,
+                  easing: theme.transitions.easing.easeInOut,
+                }),
             }}
           >
             {icon}
           </ListItemIcon>
           {open && (
             <ListItemText
-              primary={label}
+              primary={
+                <Typography sx={{ fontSize: "0.75rem", color: "inherit" }}>
+                  {label}
+                </Typography>
+              }
               sx={{ color: "inherit" }}
-              primaryTypographyProps={{
-                sx: { fontSize: "0.75rem", color: "inherit" },
-              }}
             />
           )}
           {open && (expand[sectionKey] ? <ExpandLess /> : <ExpandMore />)}
@@ -297,7 +294,6 @@ function MainNav() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
       {/* Top Bar */}
       <AppBar
         position="fixed"
@@ -310,13 +306,13 @@ function MainNav() {
           transition: (theme) =>
             theme.transitions.create(["margin-left", "width"], {
               duration: theme.transitions.duration.standard,
-              easing: theme.transitions.easing.sharp,
+              easing: theme.transitions.easing.easeInOut,
             }),
         }}
       >
         <Toolbar>
           <IconButton
-            color="inherit"
+            color="primary"
             edge="start"
             onClick={toggleDrawer}
             sx={{ mr: 2 }}
@@ -324,11 +320,11 @@ function MainNav() {
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
-          <Typography sx={{ mr: 2 }} color="inherit">
+          <Typography sx={{ mr: 2 }} color="primary">
             Welcome {user?.user_name || ""}
           </Typography>
           <Tooltip title="Profile">
-            <IconButton color="inherit">
+            <IconButton color="primary">
               <Avatar
                 alt={user?.user_name || "Error"}
                 sx={{ width: 32, height: 32 }}
@@ -336,7 +332,7 @@ function MainNav() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Logout">
-            <IconButton color="inherit" onClick={handleLogout}>
+            <IconButton color="primary" onClick={handleLogout}>
               <LogoutIcon />
             </IconButton>
           </Tooltip>
@@ -356,11 +352,11 @@ function MainNav() {
             flexDirection: "column",
             overflow: "visible",
             bgcolor: "primary.main",
-            color: "primary.contrastText",
+            color: "secondary.main",
             transition: (theme) =>
               theme.transitions.create("width", {
                 duration: theme.transitions.duration.standard,
-                easing: theme.transitions.easing.sharp,
+                easing: theme.transitions.easing.easeInOut,
               }),
           },
         }}
@@ -424,11 +420,15 @@ function MainNav() {
                 <DashboardIcon />
               </ListItemIcon>
               {open && (
-                <ListItemText primary="Dashboard" sx={{ color: "inherit" }} />
+                <ListItemText
+                  label="Dashboard"
+                  primary="Dashboard"
+                  sx={{ color: "inherit" }}
+                />
               )}
             </ListItemButton>
           </ListItem>
-          {open && <Divider sx={{ my: 1 }} />}
+          <Divider sx={{ my: 1, width: "80%", mx: "auto" }} />
 
           {/* Management (redirects to default subpage, shows subitems) */}
           <NavParent
@@ -449,12 +449,12 @@ function MainNav() {
             />
             <SubItem
               to="/management?tab=subject"
-              icon={<SubjectIcon />}
+              icon={<MenuBookIcon />}
               label="Subject"
             />
             <SubItem
               to="/management?tab=user"
-              icon={<ListAltIcon />}
+              icon={<GroupAddIcon />}
               label="User"
             />
           </NavParent>
@@ -468,84 +468,14 @@ function MainNav() {
           >
             <SubItem
               to="/input-grades"
-              icon={<ListAltIcon />}
+              icon={<StarBorderOutlinedIcon />}
               label="Input Onsite"
             />
-            {open ? (
-              <NestedToggle
-                icon={<ListAltIcon />}
-                label="Input Inhouse"
-                sectionKey="inhouseInput"
-              />
-            ) : (
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <MaybeTooltip title="Input Inhouse">
-                  <ListItemButton
-                    onClick={(e) => setAnchorInhouseInput(e.currentTarget)}
-                    selected={
-                      location.pathname === "/input-grades" &&
-                      location.search.includes("uni=")
-                    }
-                    sx={{
-                      pl: open ? 4 : 0,
-                      minHeight: 40,
-                      justifyContent: open ? "initial" : "center",
-                      textAlign: open ? "left" : "center",
-                      "&.Mui-selected": { bgcolor: "rgba(255,255,255,0.16)" },
-                      "&.Mui-selected:hover": { bgcolor: "rgba(255,255,255,0.20)" },
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 2 : 0,
-                        ml: open ? 0 : "auto",
-                        justifyContent: "center",
-                        color: "inherit",
-                      }}
-                    >
-                      <ListAltIcon />
-                    </ListItemIcon>
-                    {open && (
-                      <ListItemText
-                        primary="Input Inhouse"
-                        sx={{ color: "inherit" }}
-                        primaryTypographyProps={{
-                          sx: { fontSize: "0.75rem", color: "inherit" },
-                        }}
-                      />
-                    )}
-                  </ListItemButton>
-                </MaybeTooltip>
-              <StyledMenu
-                  anchorEl={anchorInhouseInput}
-                  open={Boolean(anchorInhouseInput) && !open}
-                  onClose={() => setAnchorInhouseInput(null)}
-                  container={anchorInhouseInput ? anchorInhouseInput.closest('.MuiDrawer-paper') : undefined}
-                >
-                  {inhouseUniversities.map((u) => (
-                    <MenuItem
-                      key={u.university_id}
-                      component={RouterLink}
-                      to={`/input-grades?uni=${u.university_id}`}
-                      selected={
-                        location.pathname === "/input-grades" &&
-                        location.search.includes(`uni=${u.university_id}`)
-                      }
-                      onClick={() => setAnchorInhouseInput(null)}
-                    >
-                      <ListItemIcon sx={{ minWidth: 24, color: "inherit" }}>
-                        <SchoolIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primaryTypographyProps={{ sx: { fontSize: "0.85rem" } }}
-                        primary={u.university_name}
-                      />
-                    </MenuItem>
-                  ))}
-                </StyledMenu>
-              </ListItem>
-            )}
+            <NestedToggle
+              icon={<ViewListOutlinedIcon />}
+              label="Input Inhouse"
+              sectionKey="inhouseInput"
+            />
             <Collapse
               in={expand.inhouseInput && open}
               timeout="auto"
@@ -556,7 +486,7 @@ function MainNav() {
                   <SubItem
                     key={u.university_id}
                     to={`/input-grades?uni=${u.university_id}`}
-                    icon={<SchoolIcon />}
+                    icon={<SchoolOutlinedIcon />}
                     label={u.university_name}
                   />
                 ))}
@@ -573,84 +503,14 @@ function MainNav() {
           >
             <SubItem
               to="/view-grades"
-              icon={<ListAltIcon />}
+              icon={<StarIcon />}
               label="View Onsite"
             />
-            {open ? (
-              <NestedToggle
-                icon={<ListAltIcon />}
-                label="View Inhouse"
-                sectionKey="inhouseView"
-              />
-            ) : (
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <MaybeTooltip title="View Inhouse">
-                  <ListItemButton
-                    onClick={(e) => setAnchorInhouseView(e.currentTarget)}
-                    selected={
-                      location.pathname === "/view-grades" &&
-                      location.search.includes("uni=")
-                    }
-                    sx={{
-                      pl: open ? 4 : 0,
-                      minHeight: 40,
-                      justifyContent: open ? "initial" : "center",
-                      textAlign: open ? "left" : "center",
-                      "&.Mui-selected": { bgcolor: "rgba(255,255,255,0.16)" },
-                      "&.Mui-selected:hover": { bgcolor: "rgba(255,255,255,0.20)" },
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 2 : 0,
-                        ml: open ? 0 : "auto",
-                        justifyContent: "center",
-                        color: "inherit",
-                      }}
-                    >
-                      <ListAltIcon />
-                    </ListItemIcon>
-                    {open && (
-                      <ListItemText
-                        primary="View Inhouse"
-                        sx={{ color: "inherit" }}
-                        primaryTypographyProps={{
-                          sx: { fontSize: "0.75rem", color: "inherit" },
-                        }}
-                      />
-                    )}
-                  </ListItemButton>
-                </MaybeTooltip>
-              <StyledMenu
-                  anchorEl={anchorInhouseView}
-                  open={Boolean(anchorInhouseView) && !open}
-                  onClose={() => setAnchorInhouseView(null)}
-                  container={anchorInhouseView ? anchorInhouseView.closest('.MuiDrawer-paper') : undefined}
-                >
-                  {inhouseUniversities.map((u) => (
-                    <MenuItem
-                      key={u.university_id}
-                      component={RouterLink}
-                      to={`/view-grades?uni=${u.university_id}`}
-                      selected={
-                        location.pathname === "/view-grades" &&
-                        location.search.includes(`uni=${u.university_id}`)
-                      }
-                      onClick={() => setAnchorInhouseView(null)}
-                    >
-                      <ListItemIcon sx={{ minWidth: 24, color: "inherit" }}>
-                        <SchoolIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primaryTypographyProps={{ sx: { fontSize: "0.85rem" } }}
-                        primary={u.university_name}
-                      />
-                    </MenuItem>
-                  ))}
-                </StyledMenu>
-              </ListItem>
-            )}
+            <NestedToggle
+              icon={<ViewListIcon />}
+              label="View Inhouse"
+              sectionKey="inhouseView"
+            />
             <Collapse
               in={expand.inhouseView && open}
               timeout="auto"

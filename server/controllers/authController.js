@@ -10,25 +10,34 @@ exports.login = async (req, res) => {
     "SELECT * FROM users WHERE user_name = ? AND user_status = 'Active'",
     [username],
     async (err, rows) => {
-      if (err) return res.status(500).json({ message: "Database error", error: err.message });
-      if (rows.length === 0) return res.status(400).json({ message: "Invalid username or password" });
+      if (err)
+        return res
+          .status(500)
+          .json({ message: "Database error", error: err.message });
+      if (rows.length === 0)
+        return res
+          .status(400)
+          .json({ message: "Invalid username or password" });
 
       const user = rows[0];
       const validPassword = await comparePassword(password, user.user_password);
-      if (!validPassword) return res.status(400).json({ message: "Invalid username or password" });
+      if (!validPassword)
+        return res
+          .status(400)
+          .json({ message: "Invalid username or password" });
 
-      // ✅ generate 2-day access token
-      const accessToken = generateAccessToken(user); 
+      // generate 2-day access token
+      const accessToken = generateAccessToken(user);
 
-      // ✅ set HttpOnly cookie
+      // set HttpOnly cookie
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false, // set true if HTTPS
+        secure: false, // set true if productive na(https)
         sameSite: "Lax",
         maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
       });
 
-      // ✅ track login + last activity
+      // Update last_login and last_activity
       db.query(
         "UPDATE users SET last_login = NOW(), last_activity = NOW() WHERE user_id = ?",
         [user.user_id]

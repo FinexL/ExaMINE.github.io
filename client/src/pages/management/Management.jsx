@@ -1,5 +1,4 @@
 import NavTabs from "../../components/layout/NavTabs";
-import ContentBox from "../../components/layout/ContentBox";
 
 import { Typography, Box } from "@mui/material";
 
@@ -11,16 +10,19 @@ import UserTable from "./tables/UserTable";
 function Management() {
   return (
     <>
-      <ContentBox>
-        <Box>
-          <NavTabs tabs={["Student", "School", "Subject", "User"]}>
-            <StudentTable />
-            <UniversityTable />
-            <SubjectTable />
-            <UserTable />
-          </NavTabs>
-        </Box>
-      </ContentBox>
+      <Box>
+        <NavTabs
+          tabs={["Student", "School", "Subject", "User"]}
+          values={["student", "school", "subject", "user"]}
+          basePath="/management"
+          routeParam="tab"
+        >
+          <StudentTable />
+          <UniversityTable />
+          <SubjectTable />
+          <UserTable />
+        </NavTabs>
+      </Box>
     </>
   );
 }

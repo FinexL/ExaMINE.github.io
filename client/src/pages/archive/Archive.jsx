@@ -17,8 +17,6 @@ import {
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 
-import ContentBox from "../../components/layout/ContentBox";
-
 import useArchive from "../../hooks/useArchive";
 
 import ErrorSnackbar from "../../components/alerts/ErrorSnackbar";
@@ -241,7 +239,7 @@ export default function Archive() {
   ];
 
   return (
-    <ContentBox>
+    <>
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
           <CircularProgress />
@@ -392,6 +390,6 @@ export default function Archive() {
           onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
         />
       )}
-    </ContentBox>
+    </>
   );
 }

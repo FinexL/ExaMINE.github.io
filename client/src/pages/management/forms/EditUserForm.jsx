@@ -47,7 +47,7 @@ export default function EditUserForm({ open, onClose, onSuccess, user }) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  // ✅ Submit form (PUT request)
+  // Submit form (PUT request)
   const handleSubmit = async () => {
     if (!user) return;
     setLoading(true);

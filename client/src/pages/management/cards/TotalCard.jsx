@@ -11,15 +11,15 @@ const TotalCards = ({ title, count }) => {
         width: 200,
         height: 100,
         mb: 2,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "primary.main",
         boxShadow: 2,
       }}
     >
       <CardContent sx={{ textAlign: "center" }}>
-        <Typography variant="subtitle1" color="textSecondary">
+        <Typography variant="subtitle1" color="secondary.main">
           {title}
         </Typography>
-        <Typography variant="h4" color="primary">
+        <Typography variant="h4" color="secondary.main">
           {count}
         </Typography>
       </CardContent>

@@ -1,74 +1,86 @@
-import { grey } from "@mui/material/colors";
-
 export const typography = {
-  fontFamily: "Roboto, Arial, sans-serif",
+  // Modern, clean sans with fallbacks
+  fontFamily:
+    "Inter, Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif",
 
+  // Page title utility used across app
   pagename: {
-    fontSize: "1.3rem",
-    fontWeight: 500,
+    fontSize: "1.375rem", // 22px
+    fontWeight: 600,
+    letterSpacing: "0.01em",
+    lineHeight: 1.3,
     textAlign: "left",
-    color: grey[900],
   },
+
+  // Headings — slightly tighter and bolder for modern look
   h1: {
-    marginTop: "10px",
-    fontSize: "2.5rem",
+    fontSize: "2.25rem", // 36px
     fontWeight: 700,
-    textAlign: "center",
-    color: grey[900],
+    letterSpacing: "-0.01em",
+    lineHeight: 1.2,
   },
-
   h2: {
-    fontSize: "2rem",
-    fontWeight: 600,
-    color: "#16b9f9ff",
+    fontSize: "1.75rem", // 28px
+    fontWeight: 700,
+    letterSpacing: "-0.005em",
+    lineHeight: 1.25,
   },
-
-  // Sub-section heading
   h3: {
-    fontSize: "1.75rem",
+    fontSize: "1.5rem", // 24px
     fontWeight: 600,
-    color: grey[800],
+    lineHeight: 1.3,
   },
-
   h4: {
-    fontSize: "1.5rem",
-    fontWeight: 500,
-    color: grey[800],
+    fontSize: "1.25rem", // 20px
+    fontWeight: 600,
+    lineHeight: 1.35,
   },
-
   h5: {
-    fontSize: "1.25rem",
-    fontWeight: 500,
-    color: grey[700],
+    fontSize: "1.125rem", // 18px
+    fontWeight: 600,
+    lineHeight: 1.4,
   },
-
   h6: {
-    fontSize: "1.125rem",
-    fontWeight: 500,
-    color: grey[700],
+    fontSize: "1rem", // 16px
+    fontWeight: 600,
+    lineHeight: 1.4,
   },
 
-  // Standard body text
+  // Body copy — readable and balanced
   body1: {
-    fontSize: "1rem",
-    lineHeight: 1.5,
-    textAlign: "left",
-    color: grey[800],
+    fontSize: "0.95rem",
+    lineHeight: 1.6,
+    letterSpacing: "0.01em",
   },
-
-  // Secondary body text
   body2: {
     fontSize: "0.875rem",
-    lineHeight: 1.43,
-    color: grey[700],
+    lineHeight: 1.5,
   },
 
-  // Button text
-  button: {
-    fontSize: "0.875rem",
+  // Subtitles and captions
+  subtitle1: {
+    fontSize: "0.95rem",
+    fontWeight: 500,
+  },
+  subtitle2: {
+    fontSize: "0.825rem",
+    fontWeight: 500,
+  },
+  caption: {
+    fontSize: "0.75rem",
+  },
+  overline: {
+    fontSize: "0.72rem",
     fontWeight: 600,
-    textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: grey[100],
+    textTransform: "uppercase",
+  },
+
+  // Buttons — modern, no forced uppercase
+  button: {
+    fontSize: "0.9rem",
+    fontWeight: 600,
+    textTransform: "none",
+    letterSpacing: "0.01em",
   },
 };

@@ -26,8 +26,8 @@ function Login() {
       // send login request
       const res = await api.post("/auth/login", { username, password });
 
-      // ✅ backend sets HttpOnly cookie automatically
-      // ✅ but you still need to store user info
+      // backend sets HttpOnly cookie automatically
+      // but you still need to store user info
       localStorage.setItem("user", JSON.stringify(res.data));
 
       navigate("/dashboard"); // redirect after login

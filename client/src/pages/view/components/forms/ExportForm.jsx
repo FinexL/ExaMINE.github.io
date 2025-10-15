@@ -114,7 +114,7 @@ export default function ExportForm({
             ? rows
             : rows.filter((r) => r.university_name === school);
 
-        // ✅ Only create Overview if "All Exams" is selected
+        // Only create Overview if "All Exams" is selected
         if (examType === "All Exams") {
           const sheetName =
             school === "All Schools" ? "Overview" : `${school} - Overview`;
@@ -254,14 +254,14 @@ export default function ExportForm({
           ];
         }
 
-        // ✅ Keep per-term sheets (always generated)
+        // Keep per-term sheets (always generated)
         const termsToExport = examType === "All Exams" ? examTerms : [examType];
         for (const term of termsToExport) {
           let termSubjects = filteredSubjects.filter(
             (s) => s.exam_type === term
           );
 
-          // 🧩 If user selected specific subjects, filter them too
+          // If user selected specific subjects, filter them too
           if (examType !== "All Exams" && selectedSubjects.length > 0) {
             termSubjects = termSubjects.filter((s) =>
               selectedSubjects.includes(s.subject_name)

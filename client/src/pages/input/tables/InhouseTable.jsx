@@ -62,7 +62,7 @@ export default function InhouseTable({ universityId }) {
       return;
     }
 
-    // ✅ Use score_${score_id} instead of subject_name
+    // Use score_${score_id} instead of subject_name
     const payload = inhouseRows.flatMap((row) =>
       filteredSubjects.map((subj) => {
         const val = row[`score_${subj.score_id}`];
@@ -105,7 +105,7 @@ export default function InhouseTable({ universityId }) {
 
         const inhouseRows = inhouse.rows;
 
-        // ✅ Updated columns use score_${subj.score_id}
+        // Updated columns use score_${subj.score_id}
         const columnDefs = useMemo(
           () => [
             {
@@ -164,7 +164,7 @@ export default function InhouseTable({ universityId }) {
               setRows={(updatedRows) => {
                 if (gridRef.current) gridRef.current.api.stopEditing();
 
-                // ✅ Validation updated to use score_${id}
+                // Validation updated to use score_${id}
                 updatedRows.forEach((row) => {
                   filteredSubjects.forEach((subj) => {
                     const value = row[`score_${subj.score_id}`];

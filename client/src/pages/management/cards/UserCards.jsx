@@ -58,12 +58,12 @@ const UserCard = ({ user, currentUser, onEdit, onStatusChange }) => {
       <Box
         sx={{
           bgcolor: "primary.main",
-          color: "white",
+          color: "primary.contrastText",
           px: 2,
           py: 1.5,
         }}
       >
-        <Typography variant="h6" noWrap fontWeight={600} color="text.secondary">
+        <Typography variant="h6" noWrap fontWeight={600} color="inherit">
           {user.username} {isSelf ? "(You)" : isAdmin ? "(Admin)" : ""}
         </Typography>
       </Box>
@@ -84,7 +84,7 @@ const UserCard = ({ user, currentUser, onEdit, onStatusChange }) => {
             size="small"
             sx={{
               bgcolor: isAdmin ? "tertiary.main" : "grey.300",
-              color: isAdmin ? "#fff" : "#000",
+              color: isAdmin ? "common.white" : "text.primary",
               fontWeight: 600,
             }}
           />
@@ -107,7 +107,8 @@ const UserCard = ({ user, currentUser, onEdit, onStatusChange }) => {
         sx={{
           px: 2,
           py: 1.5,
-          borderTop: "1px solid rgba(0,0,0,0.08)",
+          borderTop: 1,
+          borderColor: "divider",
           justifyContent: "space-between",
         }}
       >

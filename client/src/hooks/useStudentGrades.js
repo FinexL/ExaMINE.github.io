@@ -71,9 +71,7 @@ const useStudentGrades = (mode, universityId = null) => {
     }
   };
 
-  /**
-   * Fetch students + subjects + grades table from backend
-   */
+  //Fetch students + subjects + grades table from backend
   const fetchData = useCallback(() => {
     if (!mode) return;
 

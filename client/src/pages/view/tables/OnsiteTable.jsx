@@ -50,8 +50,8 @@ export default function OnsiteTable({ mode = "Onsite", universityId }) {
                 <Link
                   to={`/view-grades/${params.data.student_id}`}
                   style={{
-                    color: "blue",
-                    textDecoration: "underline",
+                    color: "black",
+                    textDecoration: "none",
                     cursor: "pointer",
                   }}
                 >
